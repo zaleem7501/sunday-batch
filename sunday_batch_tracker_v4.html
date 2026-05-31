@@ -634,7 +634,7 @@ const DEFAULT_RECIPES=[
 
 // ═══════════════════════════════ STATE ═══════════════════════════════
 // LOCAL keys (device-specific)
-const SK={inv:'sb_inv_v3',history:'sb_hist_v3',recipes:'sb_recipes_v4',recipeServes:'sb_rserves_v4'};
+const SK={inv:'sb_inv_v3',history:'sb_hist_v3',recipes:'sb_recipes_v4',recipeServes:'sb_rserves_v4',weekly:'sb_weekly_v3',checked:'sb_checked_v3',customQty:'sb_cqty_v3',recipeContribs:'sb_rcontribs_v4'};
 function load(k){try{return JSON.parse(localStorage.getItem(k)||'null');}catch(e){return null;}}
 function saveLocal(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 
@@ -769,6 +769,7 @@ function pushToFirebase(){
 // Legacy save() calls route shared state to Firebase
 function save(k,v){
   const sharedKeys=['sb_weekly_v3','sb_checked_v3','sb_cqty_v3','sb_rcontribs_v4'];
+  console.log('💾 save() called with key:', k, '| is shared:', sharedKeys.includes(k));
   if(sharedKeys.includes(k)){
     pushToFirebase();
   } else {
