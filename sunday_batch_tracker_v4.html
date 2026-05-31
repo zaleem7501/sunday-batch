@@ -654,7 +654,6 @@ let customQty={};
 let recipeContribs={};
 
 // ═══════════════════════════════ FIREBASE SYNC ═══════════════════════════════
-// Replace these with your actual Firebase config values
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyCOtom6lF2lKdmGkWmK4YatPEubPex1D38",
   authDomain: "sunday-batch.firebaseapp.com",
@@ -664,29 +663,28 @@ const FIREBASE_CONFIG = {
   appId: "1:497309261356:web:be46bf692966c00a103b89",
 };
 
-const SHARED_DOC = 'sunday-batch-shared'; // Firestore document path
+const SHARED_DOC = 'sunday-batch-shared';
 let db = null;
-let syncUnsubscribe = null;
 let isSyncing = false;
+let syncReady = false;
 
 function initFirebase(){
+  // Show local data immediately while Firebase connects
+  loadSharedFromLocal();
+  renderWeekly();
   try {
     if(typeof firebase === 'undefined'){
-      console.warn('Firebase not loaded — running in offline mode');
-      loadSharedFromLocal();
+      console.warn('Firebase not loaded');
       return;
     }
     if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     db = firebase.firestore();
-    db.settings({cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED});
-    db.enablePersistence().catch(err=>{
-      if(err.code==='failed-precondition') console.warn('Multi-tab persistence not available');
-    });
+    // NO offline persistence — causes stale cache issues
+    setSyncStatus('connecting');
     startSync();
-  } catch(e) {
-    console.warn('Firebase init failed, using local fallback:', e);
-    loadSharedFromLocal();
-    renderWeekly();
+  } catch(e){
+    console.warn('Firebase init error:', e);
+    setSyncStatus('offline');
   }
 }
 
@@ -697,74 +695,62 @@ function loadSharedFromLocal(){
   recipeContribs=JSON.parse(localStorage.getItem('sb_shared_contribs')||'{}');
 }
 
-function saveSharedToLocal(data){
-  localStorage.setItem('sb_shared_weekly', JSON.stringify(data.weeklyIds||[]));
-  localStorage.setItem('sb_shared_checked', JSON.stringify(data.checkedIds||{}));
-  localStorage.setItem('sb_shared_qty', JSON.stringify(data.customQty||{}));
-  localStorage.setItem('sb_shared_contribs', JSON.stringify(data.recipeContribs||{}));
-}
-
-function startSync(){
-  if(!db) return;
-  setSyncStatus('connecting');
-  // First load from local cache immediately so UI isn't blank
-  loadSharedFromLocal();
-  syncUnsubscribe = db.collection('shared').doc(SHARED_DOC)
-    .onSnapshot(doc=>{
-      setSyncStatus('live');
-      if(doc.exists){
-        const data=doc.data();
-        const firebaseHasData=(data.weeklyIds&&data.weeklyIds.length>0)||
-                               (data.checkedIds&&Object.keys(data.checkedIds).length>0)||
-                               (data.customQty&&Object.keys(data.customQty).length>0);
-        const localHasData=weeklyIds.length>0||Object.keys(checkedIds).length>0;
-        if(firebaseHasData){
-          weeklyIds=data.weeklyIds||[];
-          checkedIds=data.checkedIds||{};
-          customQty=data.customQty||{};
-          recipeContribs=data.recipeContribs||{};
-          saveSharedToLocal(data);
-        } else if(localHasData){
-          // Firebase is empty but local has data — push local up
-          pushToFirebase();
-          return;
-        }
-        // both empty — just render empty list
-      } else {
-        // Document doesn't exist — push local state if we have any
-        const localHasData=weeklyIds.length>0||Object.keys(checkedIds).length>0;
-        if(localHasData) pushToFirebase();
-      }
-      if(!isSyncing) renderWeekly();
-    }, err=>{
-      console.warn('Sync error:', err);
-      setSyncStatus('offline');
-      renderWeekly();
-    });
-}
-
-function pushToFirebase(){
-  if(!db){ saveSharedLocally(); return; }
-  // Never push empty state to Firebase — would overwrite real data
-  const hasData=weeklyIds.length>0||Object.keys(checkedIds).length>0||Object.keys(customQty).length>0;
-  if(!hasData){ saveSharedLocally(); return; }
-  isSyncing=true;
-  const data={weeklyIds,checkedIds,customQty,recipeContribs,updatedAt:new Date().toISOString()};
-  db.collection('shared').doc(SHARED_DOC).set(data)
-    .then(()=>{ isSyncing=false; saveSharedToLocal(data); })
-    .catch(err=>{ console.warn('Push failed:', err); isSyncing=false; saveSharedToLocal(data); });
-}
-
-function saveSharedLocally(){
+function saveSharedToLocal(){
   localStorage.setItem('sb_shared_weekly', JSON.stringify(weeklyIds));
   localStorage.setItem('sb_shared_checked', JSON.stringify(checkedIds));
   localStorage.setItem('sb_shared_qty', JSON.stringify(customQty));
   localStorage.setItem('sb_shared_contribs', JSON.stringify(recipeContribs));
 }
 
-// Replace the old save() for shared state
+function startSync(){
+  if(!db) return;
+  db.collection('shared').doc(SHARED_DOC)
+    .onSnapshot({includeMetadataChanges: false}, doc=>{
+      setSyncStatus('live');
+      syncReady = true;
+      if(doc.exists){
+        const data = doc.data();
+        const fbWeekly = data.weeklyIds||[];
+        const fbChecked = data.checkedIds||{};
+        const fbQty = data.customQty||{};
+        const fbContribs = data.recipeContribs||{};
+        const fbUpdated = data.updatedAt||'';
+        const localUpdated = localStorage.getItem('sb_local_updated')||'';
+        // Firebase is authoritative if it has data OR is newer than local
+        const fbHasData = fbWeekly.length>0 || Object.keys(fbChecked).length>0;
+        const fbIsNewer = fbUpdated > localUpdated;
+        if(fbHasData || fbIsNewer){
+          weeklyIds = fbWeekly;
+          checkedIds = fbChecked;
+          customQty = fbQty;
+          recipeContribs = fbContribs;
+          saveSharedToLocal();
+          renderWeekly();
+        }
+        // else: local is newer or both empty — keep local, don't overwrite
+      }
+      // doc doesn't exist — keep whatever local has
+    }, err=>{
+      console.warn('Sync error:', err);
+      setSyncStatus('offline');
+    });
+}
+
+function pushToFirebase(){
+  if(!db || !syncReady) { saveSharedToLocal(); return; }
+  const hasData = weeklyIds.length>0 || Object.keys(checkedIds).length>0 || Object.keys(customQty).length>0;
+  if(!hasData){ saveSharedToLocal(); return; }
+  isSyncing = true;
+  const now = new Date().toISOString();
+  localStorage.setItem('sb_local_updated', now);
+  const data = {weeklyIds:[...weeklyIds], checkedIds:{...checkedIds}, customQty:{...customQty}, recipeContribs:{...recipeContribs}, updatedAt:now};
+  db.collection('shared').doc(SHARED_DOC).set(data)
+    .then(()=>{ isSyncing=false; saveSharedToLocal(); })
+    .catch(err=>{ console.warn('Push failed:', err); isSyncing=false; });
+}
+
+// Legacy save() calls route shared state to Firebase
 function save(k,v){
-  // Legacy calls that affect shared state — push to Firebase
   const sharedKeys=['sb_weekly_v3','sb_checked_v3','sb_cqty_v3','sb_rcontribs_v4'];
   if(sharedKeys.includes(k)){
     pushToFirebase();
@@ -776,14 +762,9 @@ function save(k,v){
 function setSyncStatus(status){
   const el=document.getElementById('sync-status');
   if(!el) return;
-  const states={
-    connecting:{text:'⟳ Connecting…',color:'var(--muted)'},
-    live:{text:'● Live sync',color:'var(--sage)'},
-    offline:{text:'○ Offline',color:'var(--gold)'},
-  };
+  const states={connecting:{text:'⟳ Connecting…',color:'var(--muted)'},live:{text:'● Live sync',color:'var(--sage)'},offline:{text:'○ Offline',color:'var(--gold)'}};
   const s=states[status]||states.offline;
-  el.textContent=s.text;
-  el.style.color=s.color;
+  el.textContent=s.text; el.style.color=s.color;
 }
 
 const now=new Date();
