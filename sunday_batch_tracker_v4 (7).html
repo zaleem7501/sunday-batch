@@ -66,6 +66,7 @@ header::after{content:'';position:absolute;bottom:-25px;left:38%;width:100px;hei
 .gi-name{font-size:13px;}
 .gi-brand{font-size:11px;color:var(--sage);margin-top:1px;display:block;}
 .gi-where{font-size:10px;color:var(--patel);margin-top:1px;display:block;}
+.gi-contribs{font-size:10px;color:var(--sage);background:var(--sage-pale);border-radius:3px;padding:1px 6px;margin-top:2px;display:inline-block;}
 .patel-tag{font-size:9px;background:var(--patel-pale);color:var(--patel);border:0.5px solid #A0BAD8;border-radius:3px;padding:1px 5px;margin-left:4px;}
 .gi-nutr{display:none;grid-column:2/-1;margin-top:3px;padding:4px 7px;background:var(--sage-pale);border-radius:3px;border-left:2px solid var(--sage);}
 .gitem.checked .gi-nutr{display:block;}
@@ -626,7 +627,7 @@ const DEFAULT_RECIPES=[
 ];
 
 // ═══════════════════════════════ STATE ═══════════════════════════════
-const SK={inv:'sb_inv_v3',weekly:'sb_weekly_v3',checked:'sb_checked_v3',customQty:'sb_cqty_v3',meals:'sb_meals_v3',history:'sb_hist_v3',day:'sb_day_v3',recipes:'sb_recipes_v4',recipeServes:'sb_rserves_v4'};
+const SK={inv:'sb_inv_v3',weekly:'sb_weekly_v3',checked:'sb_checked_v3',customQty:'sb_cqty_v3',recipeContribs:'sb_rcontribs_v4',meals:'sb_meals_v3',history:'sb_hist_v3',day:'sb_day_v3',recipes:'sb_recipes_v4',recipeServes:'sb_rserves_v4'};
 function load(k){try{return JSON.parse(localStorage.getItem(k)||'null');}catch(e){return null;}}
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 
@@ -634,6 +635,7 @@ let inventory=load(SK.inv)||JSON.parse(JSON.stringify(DEFAULT_INVENTORY));
 let weeklyIds=load(SK.weekly)||[];
 let checkedIds=load(SK.checked)||{};
 let customQty=load(SK.customQty)||{};
+let recipeContribs=load(SK.recipeContribs)||{}; // itemId -> {recipeName, qty}[]
 let historyData=load(SK.history)||[];
 let recipes=load(SK.recipes)||JSON.parse(JSON.stringify(DEFAULT_RECIPES));
 let recipeServes=load(SK.recipeServes)||{};
@@ -683,6 +685,9 @@ function renderWeekly(){
       const where=item.where?'<span class="gi-where">📍 '+item.where+'</span>':'';
       const pills=buildPills(item);
       const nutrNote=item.nutrNote?'<span class="np gd">'+item.nutrNote+'</span>':'';
+      // Recipe attribution
+      const contribs=recipeContribs[item.id]||[];
+      const contribHtml=contribs.length>0?'<span class="gi-contribs">'+contribs.map(c=>c.recipeName+(c.qty?' ('+c.qty+')':'')).join(' + ')+'</span>':'';
       div.innerHTML=
         '<div class="gchk"><svg class="chk-svg" width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3 5.5L8 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'+
         '<div>'+
@@ -692,6 +697,7 @@ function renderWeekly(){
               '<button class="qty-edit-btn" onclick="startQtyEdit(event,\''+item.id+'\')">✎</button>'+
             '</span>'+
           patel+'</span>'+
+          contribHtml+
           brand+where+
           '<div class="gi-nutr"><div class="npills">'+pills+nutrNote+'</div></div>'+
         '</div>'+
@@ -729,7 +735,10 @@ function toggleCheck(key){
 }
 
 function removeFromWeek(id){
-  weeklyIds=weeklyIds.filter(i=>i!==id);save(SK.weekly,weeklyIds);
+  weeklyIds=weeklyIds.filter(i=>i!==id);
+  delete customQty[id];
+  delete recipeContribs[id];
+  save(SK.weekly,weeklyIds);save(SK.customQty,customQty);save(SK.recipeContribs,recipeContribs);
   renderWeekly();renderInventory();
 }
 
@@ -742,9 +751,9 @@ function addToWeek(id,qtyOverride){
 function resetWeek(){
   if(!confirm('Start a new week? This saves current data to history and clears the list.'))return;
   saveHistory();
-  checkedIds={};customQty={};
+  checkedIds={};customQty={};recipeContribs={};
   weeklyIds=[];
-  save(SK.checked,checkedIds);save(SK.customQty,customQty);save(SK.weekly,weeklyIds);
+  save(SK.checked,checkedIds);save(SK.customQty,customQty);save(SK.recipeContribs,recipeContribs);save(SK.weekly,weeklyIds);
   renderWeekly();
 }
 
@@ -951,24 +960,79 @@ function findInvId(itemName){
   return found?found.id:null;
 }
 
+function parseQtyValue(qtyStr){
+  // Extract numeric value from quantity strings like "1 lb", "½ lb", "1½ lbs", "2–3 medium"
+  if(!qtyStr)return null;
+  const s=qtyStr.trim();
+  // fraction map
+  const fracs={'⅛':0.125,'¼':0.25,'⅓':0.333,'½':0.5,'⅔':0.667,'¾':0.75,'1½':1.5,'1¼':1.25,'1⅓':1.333,'1¾':1.75,'2½':2.5};
+  for(const[f,v]of Object.entries(fracs)){if(s.startsWith(f))return{val:v,unit:s.slice(f.length).trim().replace(/^lbs?/,'lb').split(' ')[0]||''};}
+  const m=s.match(/^(\d+(?:\.\d+)?)/);
+  if(m)return{val:parseFloat(m[1]),unit:s.slice(m[0].length).trim().replace(/^lbs?/,'lb').split(' ')[0]||''};
+  return null;
+}
+
+function combineQty(existingQty, newQty){
+  // Try to add two quantity strings if they share a unit
+  const a=parseQtyValue(existingQty);
+  const b=parseQtyValue(newQty);
+  if(!a||!b)return null;
+  // Normalise unit
+  const uA=(a.unit||'').replace(/s$/,'').toLowerCase();
+  const uB=(b.unit||'').replace(/s$/,'').toLowerCase();
+  if(uA!==uB&&uA!==''&&uB!=='')return null; // different units — can't combine
+  const total=a.val+b.val;
+  const unit=uA||uB;
+  // Format nicely
+  const fracs=[[0.125,'⅛'],[0.25,'¼'],[0.333,'⅓'],[0.5,'½'],[0.667,'⅔'],[0.75,'¾']];
+  const whole=Math.floor(total);const rem=total-whole;
+  let numStr='';
+  if(rem<0.06)numStr=String(whole);
+  else{let found=false;for(const[fv,fs]of fracs){if(Math.abs(rem-fv)<0.06){numStr=(whole>0?whole+' ':'')+fs;found=true;break;}}if(!found)numStr=total.toFixed(1);}
+  const unitStr=unit?(total>1&&!['tsp','tbsp','cup','oz','lb','g','kg'].includes(unit)?unit+'s':unit):'';
+  return numStr+(unitStr?' '+unitStr:'');
+}
+
 function addRecipeToWeek(id){
   const recipe=recipes.find(r=>r.id===id);if(!recipe)return;
   const serves=getRecipeServes(id,recipe.defaultServes);
-  const ratio=serves/recipe.defaultServes;
-  let addedCount=0;let missingItems=[];
+  let addedCount=0,combinedCount=0,missingItems=[];
+
   recipe.ingredients.forEach(ing=>{
     const invId=findInvId(ing.item);
-    if(invId){
-      addToWeek(invId);
-      addedCount++;
+    if(!invId){missingItems.push(ing.item);return;}
+
+    if(weeklyIds.includes(invId)){
+      // Already on list — try to combine quantities
+      const existing=customQty[invId]||(inventory.find(i=>i.id===invId)||{}).qty||'';
+      const combined=combineQty(existing,ing.qty);
+      if(combined){
+        customQty[invId]=combined;
+        save(SK.customQty,customQty);
+      }
+      // Track recipe contribution
+      if(!recipeContribs[invId])recipeContribs[invId]=[];
+      if(!recipeContribs[invId].find(r=>r.recipeId===id)){
+        recipeContribs[invId].push({recipeId:id,recipeName:recipe.name,qty:ing.qty});
+        save(SK.recipeContribs,recipeContribs);
+      }
+      combinedCount++;
     } else {
-      missingItems.push(ing.item);
+      // New item — add fresh
+      weeklyIds.push(invId);
+      customQty[invId]=ing.qty;
+      save(SK.customQty,customQty);
+      recipeContribs[invId]=[{recipeId:id,recipeName:recipe.name,qty:ing.qty}];
+      save(SK.recipeContribs,recipeContribs);
+      addedCount++;
     }
   });
+
   save(SK.weekly,weeklyIds);
-  let msg=addedCount+' ingredient'+(addedCount!==1?'s':'')+' added to your weekly list.';
-  if(missingItems.length>0)msg+='\n\nNot found in inventory (add manually if needed):\n'+missingItems.join('\n');
-  alert(msg);
+  let msg=addedCount+' ingredient'+(addedCount!==1?'s':'')+' added';
+  if(combinedCount>0)msg+=', '+combinedCount+' quantity'+(combinedCount!==1?'s':'')+' combined with existing items';
+  if(missingItems.length>0)msg+='\n\nNot found in inventory:\n'+missingItems.join('\n');
+  alert(msg+'.');
   renderWeekly();
   renderRecipes();
 }
@@ -1056,7 +1120,30 @@ function renderInventory(){
   });
 }
 
-function addToWeekFromInv(id){addToWeek(id);save(SK.weekly,weeklyIds);renderInventory();renderWeekly();}
+function addToWeekFromInv(id){
+  const item=inventory.find(i=>i.id===id);if(!item)return;
+  if(weeklyIds.includes(id)){
+    // Already on list — try to combine with inventory default qty
+    const existing=customQty[id]||item.qty||'';
+    const invQty=item.qty||'';
+    const combined=combineQty(existing,invQty);
+    if(combined){customQty[id]=combined;save(SK.customQty,customQty);}
+    // Track as manual addition
+    if(!recipeContribs[id])recipeContribs[id]=[];
+    if(!recipeContribs[id].find(r=>r.recipeId==='manual')){
+      recipeContribs[id].push({recipeId:'manual',recipeName:'Manual add',qty:invQty});
+      save(SK.recipeContribs,recipeContribs);
+    }
+  } else {
+    weeklyIds.push(id);
+    customQty[id]=item.qty||'';
+    save(SK.customQty,customQty);
+    recipeContribs[id]=[{recipeId:'manual',recipeName:'Manual add',qty:item.qty||''}];
+    save(SK.recipeContribs,recipeContribs);
+  }
+  save(SK.weekly,weeklyIds);
+  renderInventory();renderWeekly();
+}
 
 function deleteItem(id){
   if(!confirm('Remove from inventory permanently?'))return;
