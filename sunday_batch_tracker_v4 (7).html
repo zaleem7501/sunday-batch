@@ -179,6 +179,8 @@ header::after{content:'';position:absolute;bottom:-25px;left:38%;width:100px;hei
   .field-row,.field-row3{grid-template-columns:1fr;}
 }
 </style>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <header>
@@ -188,7 +190,10 @@ header::after{content:'';position:absolute;bottom:-25px;left:38%;width:100px;hei
         <div class="htitle">Sunday Batch<br><em>Weekly Tracker</em></div>
         <div class="hsub">Grocery · Recipes · Nutrition</div>
       </div>
-      <div class="week-badge" id="week-badge">Week of —</div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+        <div class="week-badge" id="week-badge">Week of —</div>
+        <span id="sync-status" style="font-size:10px;letter-spacing:0.06em;color:var(--muted)">○ Offline</span>
+      </div>
     </div>
   </div>
 </header>
@@ -628,21 +633,142 @@ const DEFAULT_RECIPES=[
 ];
 
 // ═══════════════════════════════ STATE ═══════════════════════════════
-const SK={inv:'sb_inv_v3',weekly:'sb_weekly_v3',checked:'sb_checked_v3',customQty:'sb_cqty_v3',recipeContribs:'sb_rcontribs_v4',meals:'sb_meals_v3',history:'sb_hist_v3',day:'sb_day_v3',recipes:'sb_recipes_v4',recipeServes:'sb_rserves_v4'};
+// LOCAL keys (device-specific)
+const SK={inv:'sb_inv_v3',history:'sb_hist_v3',recipes:'sb_recipes_v4',recipeServes:'sb_rserves_v4'};
 function load(k){try{return JSON.parse(localStorage.getItem(k)||'null');}catch(e){return null;}}
-function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function saveLocal(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 
+// LOCAL state
 let inventory=load(SK.inv)||JSON.parse(JSON.stringify(DEFAULT_INVENTORY));
-let weeklyIds=load(SK.weekly)||[];
-let checkedIds=load(SK.checked)||{};
-let customQty=load(SK.customQty)||{};
-let recipeContribs=load(SK.recipeContribs)||{}; // itemId -> {recipeName, qty}[]
 let historyData=load(SK.history)||[];
 let recipes=load(SK.recipes)||JSON.parse(JSON.stringify(DEFAULT_RECIPES));
 let recipeServes=load(SK.recipeServes)||{};
-let recipeUrls=load('sb_rurls_v4')||{}; // recipeId -> current serving count override
+let recipeUrls=load('sb_rurls_v4')||{};
 let editingId=null;
 let editingRecipeId=null;
+
+// SHARED state (synced via Firebase)
+let weeklyIds=[];
+let checkedIds={};
+let customQty={};
+let recipeContribs={};
+
+// ═══════════════════════════════ FIREBASE SYNC ═══════════════════════════════
+// Replace these with your actual Firebase config values
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCOtom6lF2lKdmGkWmK4YatPEubPex1D38",
+  authDomain: "sunday-batch.firebaseapp.com",
+  projectId: "sunday-batch",
+  storageBucket: "sunday-batch.firebasestorage.app",
+  messagingSenderId: "497309261356",
+  appId: "1:497309261356:web:be46bf692966c00a103b89",
+};
+
+const SHARED_DOC = 'sunday-batch-shared'; // Firestore document path
+let db = null;
+let syncUnsubscribe = null;
+let isSyncing = false;
+
+function initFirebase(){
+  try {
+    if(typeof firebase === 'undefined'){
+      console.warn('Firebase not loaded — running in offline mode');
+      loadSharedFromLocal();
+      return;
+    }
+    if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+    db.settings({cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED});
+    db.enablePersistence().catch(err=>{
+      if(err.code==='failed-precondition') console.warn('Multi-tab persistence not available');
+    });
+    startSync();
+  } catch(e) {
+    console.warn('Firebase init failed, using local fallback:', e);
+    loadSharedFromLocal();
+  }
+}
+
+function loadSharedFromLocal(){
+  weeklyIds=JSON.parse(localStorage.getItem('sb_shared_weekly')||'[]');
+  checkedIds=JSON.parse(localStorage.getItem('sb_shared_checked')||'{}');
+  customQty=JSON.parse(localStorage.getItem('sb_shared_qty')||'{}');
+  recipeContribs=JSON.parse(localStorage.getItem('sb_shared_contribs')||'{}');
+  renderWeekly();
+}
+
+function saveSharedToLocal(data){
+  localStorage.setItem('sb_shared_weekly', JSON.stringify(data.weeklyIds||[]));
+  localStorage.setItem('sb_shared_checked', JSON.stringify(data.checkedIds||{}));
+  localStorage.setItem('sb_shared_qty', JSON.stringify(data.customQty||{}));
+  localStorage.setItem('sb_shared_contribs', JSON.stringify(data.recipeContribs||{}));
+}
+
+function startSync(){
+  if(!db) return;
+  setSyncStatus('connecting');
+  syncUnsubscribe = db.collection('shared').doc(SHARED_DOC)
+    .onSnapshot(doc=>{
+      setSyncStatus('live');
+      if(doc.exists){
+        const data=doc.data();
+        weeklyIds=data.weeklyIds||[];
+        checkedIds=data.checkedIds||{};
+        customQty=data.customQty||{};
+        recipeContribs=data.recipeContribs||{};
+        saveSharedToLocal(data);
+      } else {
+        // First time — push current local state
+        pushToFirebase();
+      }
+      if(!isSyncing) renderWeekly();
+    }, err=>{
+      console.warn('Sync error:', err);
+      setSyncStatus('offline');
+      loadSharedFromLocal();
+      renderWeekly();
+    });
+}
+
+function pushToFirebase(){
+  if(!db){ saveSharedLocally(); return; }
+  isSyncing=true;
+  const data={weeklyIds,checkedIds,customQty,recipeContribs,updatedAt:new Date().toISOString()};
+  db.collection('shared').doc(SHARED_DOC).set(data)
+    .then(()=>{ isSyncing=false; saveSharedToLocal(data); })
+    .catch(err=>{ console.warn('Push failed:', err); isSyncing=false; saveSharedToLocal(data); });
+}
+
+function saveSharedLocally(){
+  localStorage.setItem('sb_shared_weekly', JSON.stringify(weeklyIds));
+  localStorage.setItem('sb_shared_checked', JSON.stringify(checkedIds));
+  localStorage.setItem('sb_shared_qty', JSON.stringify(customQty));
+  localStorage.setItem('sb_shared_contribs', JSON.stringify(recipeContribs));
+}
+
+// Replace the old save() for shared state
+function save(k,v){
+  // Legacy calls that affect shared state — push to Firebase
+  const sharedKeys=['sb_weekly_v3','sb_checked_v3','sb_cqty_v3','sb_rcontribs_v4'];
+  if(sharedKeys.includes(k)){
+    pushToFirebase();
+  } else {
+    saveLocal(k,v);
+  }
+}
+
+function setSyncStatus(status){
+  const el=document.getElementById('sync-status');
+  if(!el) return;
+  const states={
+    connecting:{text:'⟳ Connecting…',color:'var(--muted)'},
+    live:{text:'● Live sync',color:'var(--sage)'},
+    offline:{text:'○ Offline',color:'var(--gold)'},
+  };
+  const s=states[status]||states.offline;
+  el.textContent=s.text;
+  el.style.color=s.color;
+}
 
 const now=new Date();
 const sunday=new Date(now);sunday.setDate(now.getDate()-now.getDay());
@@ -1293,7 +1419,7 @@ function exportCSV(){
 }
 
 // ═══════════════════════════════ INIT ═══════════════════════════════
-renderWeekly();
+initFirebase();
 </script>
 </body>
 </html>
