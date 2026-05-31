@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sunday Batch — Weekly Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream:#F5F0E8;--ink:#1A1A14;--sage:#4A6741;--sage-light:#D4E8CF;
+  --sage-pale:#EDF5EB;--rust:#C4502A;--rust-pale:#FAE9E3;
+  --gold:#B8860B;--gold-pale:#FDF3D0;--border:#D8D0C0;--muted:#7A7060;
+  --patel:#3A5A8A;--patel-pale:#E3ECF7;--warn:#C4502A;--card:#FFFFFF;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Mono',monospace;background:var(--cream);color:var(--ink);min-height:100vh;}
+header{background:var(--ink);color:var(--cream);padding:1.8rem 1.5rem 1.5rem;position:relative;overflow:hidden;}
+header::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:rgba(74,103,65,0.22);}
+header::after{content:'';position:absolute;bottom:-25px;left:38%;width:100px;height:100px;border-radius:50%;background:rgba(184,134,11,0.15);}
+.hinner{position:relative;z-index:1;max-width:980px;margin:0 auto;}
+.htop{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:0.8rem;}
+.htitle{font-family:'DM Serif Display',serif;font-size:1.6rem;line-height:1.1;}
+.hsub{font-size:10px;color:#A0997A;letter-spacing:0.1em;text-transform:uppercase;margin-top:0.25rem;}
+.week-badge{background:var(--sage);color:white;font-size:10px;letter-spacing:0.07em;padding:4px 11px;border-radius:2px;text-transform:uppercase;white-space:nowrap;}
+.tabs{background:var(--ink);border-top:1px solid rgba(255,255,255,0.07);}
+.tabs-inner{max-width:980px;margin:0 auto;display:flex;}
+.tab-btn{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:11px 16px;border:none;background:none;color:#A0997A;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.13s;}
+.tab-btn.active{color:var(--cream);border-bottom-color:var(--sage);}
+.tab-btn:hover:not(.active){color:#D8D0C0;}
+.main{max-width:980px;margin:0 auto;padding:1.5rem 1.5rem 5rem;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+.btn{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;padding:6px 13px;border-radius:2px;cursor:pointer;border:0.5px solid var(--border);background:none;color:var(--muted);transition:all 0.12s;}
+.btn:hover{background:var(--rust-pale);color:var(--rust);border-color:var(--rust);}
+.btn.primary{background:var(--sage);color:white;border-color:var(--sage);}
+.btn.primary:hover{background:#3a5333;}
+.btn.danger{background:none;color:var(--rust);border-color:var(--rust);}
+.btn.danger:hover{background:var(--rust-pale);}
+.btn-row{display:flex;gap:8px;justify-content:flex-end;margin-bottom:1rem;flex-wrap:wrap;}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:4px;margin-bottom:1.2rem;overflow:hidden;}
+.panel-hdr{background:var(--ink);color:var(--cream);padding:0.6rem 1.1rem;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;}
+.panel-hdr span{color:#A0997A;font-size:10px;}
+.panel-footer{padding:0.55rem 1.1rem;font-size:11px;color:var(--muted);border-top:1px solid var(--border);background:var(--sage-pale);}
+.quality-grid{display:grid;grid-template-columns:repeat(4,1fr);}
+.qcell{padding:0.8rem 0.9rem;border-right:1px solid var(--border);border-bottom:1px solid var(--border);}
+.qcell:nth-child(4n){border-right:none;}
+.qcell:nth-last-child(-n+4){border-bottom:none;}
+.qlabel{font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.qstatus{font-size:11px;}
+.qstatus.good{color:var(--sage);}
+.qstatus.warn{color:var(--warn);}
+.qstatus.neutral{color:var(--gold);}
+.qbar{height:2px;background:var(--border);border-radius:2px;margin-top:5px;overflow:hidden;}
+.qbar-fill{height:100%;border-radius:2px;transition:width 0.4s;}
+.section{margin-bottom:1.1rem;}
+.section-title{font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);padding:0.35rem 0;border-bottom:0.5px solid var(--border);margin-bottom:2px;display:flex;align-items:center;justify-content:space-between;}
+/* GROCERY */
+.gitem{display:grid;grid-template-columns:20px 1fr auto;gap:8px;padding:6px 4px;border-radius:3px;cursor:pointer;transition:background 0.1s;align-items:start;}
+.gitem:hover{background:rgba(0,0,0,0.025);}
+.gitem.checked{opacity:0.33;}
+.gitem.checked .gi-name{text-decoration:line-through;}
+.gchk{width:14px;height:14px;border:1.5px solid var(--border);border-radius:2px;margin-top:2px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.1s;}
+.gitem.checked .gchk{background:var(--sage);border-color:var(--sage);}
+.chk-svg{display:none;}
+.gitem.checked .chk-svg{display:block;}
+.gi-name{font-size:13px;}
+.gi-brand{font-size:11px;color:var(--sage);margin-top:1px;display:block;}
+.gi-where{font-size:10px;color:var(--patel);margin-top:1px;display:block;}
+.patel-tag{font-size:9px;background:var(--patel-pale);color:var(--patel);border:0.5px solid #A0BAD8;border-radius:3px;padding:1px 5px;margin-left:4px;}
+.gi-nutr{display:none;grid-column:2/-1;margin-top:3px;padding:4px 7px;background:var(--sage-pale);border-radius:3px;border-left:2px solid var(--sage);}
+.gitem.checked .gi-nutr{display:block;}
+.npills{display:flex;flex-wrap:wrap;gap:3px;}
+.np{font-size:10px;padding:1px 5px;border-radius:8px;background:white;border:0.5px solid var(--border);}
+.np.hi{background:var(--gold-pale);border-color:var(--gold);color:var(--gold);}
+.np.wn{background:var(--rust-pale);border-color:var(--rust);color:var(--rust);}
+.np.gd{background:var(--sage-pale);border-color:var(--sage);color:var(--sage);}
+.gi-remove{font-size:10px;color:var(--muted);background:none;border:none;cursor:pointer;padding:2px 5px;border-radius:2px;opacity:0;transition:opacity 0.1s;}
+.gitem:hover .gi-remove{opacity:1;}
+.gi-remove:hover{color:var(--rust);}
+.qty-inline{display:inline-flex;align-items:center;gap:3px;margin-left:4px;}
+.qty-edit-btn{font-size:9px;color:var(--muted);background:none;border:none;cursor:pointer;padding:1px 3px;opacity:0;transition:opacity 0.1s;}
+.gitem:hover .qty-edit-btn{opacity:1;}
+.qty-edit-btn:hover{color:var(--sage);}
+.qty-input{font-family:'DM Mono',monospace;font-size:11px;width:80px;border:0.5px solid var(--sage);border-radius:2px;padding:1px 4px;background:white;outline:none;}
+/* INVENTORY */
+.inv-item{display:grid;grid-template-columns:1fr auto;gap:8px;padding:8px 6px;border-bottom:0.5px solid var(--border);align-items:start;}
+.inv-item:last-child{border-bottom:none;}
+.inv-name{font-size:13px;}
+.inv-meta{font-size:11px;color:var(--muted);margin-top:1px;}
+.inv-brand{font-size:11px;color:var(--sage);margin-top:1px;}
+.inv-where{font-size:10px;color:var(--patel);margin-top:1px;}
+.inv-actions{display:flex;gap:5px;align-items:flex-start;flex-shrink:0;padding-top:2px;}
+.inv-add-btn{font-family:'DM Mono',monospace;font-size:10px;padding:4px 10px;border-radius:2px;border:0.5px solid var(--sage);color:var(--sage);background:none;cursor:pointer;white-space:nowrap;}
+.inv-add-btn:hover{background:var(--sage-pale);}
+.inv-add-btn.added{background:var(--sage);color:white;}
+.inv-edit-btn{font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;padding:3px 5px;}
+.inv-edit-btn:hover{color:var(--ink);}
+.inv-del-btn{font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;padding:3px 5px;}
+.inv-del-btn:hover{color:var(--rust);}
+.search-box{font-family:'DM Mono',monospace;font-size:12px;width:100%;border:0.5px solid var(--border);border-radius:2px;padding:7px 10px;background:var(--cream);outline:none;margin-bottom:0.8rem;}
+.search-box:focus{border-color:var(--sage);}
+/* RECIPES */
+.recipe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:1.5rem;}
+.recipe-card{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;transition:box-shadow 0.15s;display:flex;flex-direction:column;}
+.recipe-card:hover{box-shadow:0 2px 12px rgba(0,0,0,0.08);}
+.rc-header{padding:1rem 1rem 0.6rem;border-bottom:0.5px solid var(--border);}
+.rc-title{font-family:'DM Serif Display',serif;font-size:1.1rem;line-height:1.2;}
+.rc-meta{font-size:10px;color:var(--muted);margin-top:3px;letter-spacing:0.04em;}
+.rc-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
+.rc-tag{font-size:9px;padding:2px 6px;border-radius:8px;background:var(--sage-pale);color:var(--sage);border:0.5px solid var(--sage-light);}
+.rc-tag.warn{background:var(--rust-pale);color:var(--rust);border-color:var(--rust);}
+.rc-body{padding:0.8rem 1rem;flex:1;}
+.rc-section-label{font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+.rc-ingr-list{list-style:none;margin-bottom:0.8rem;}
+.rc-ingr-list li{font-size:12px;padding:2px 0;border-bottom:0.5px solid var(--border);display:flex;justify-content:space-between;}
+.rc-ingr-list li:last-child{border-bottom:none;}
+.rc-ingr-name{color:var(--ink);}
+.rc-ingr-qty{color:var(--muted);font-size:11px;}
+.rc-steps{margin-bottom:0.8rem;}
+.rc-step{font-size:12px;padding:4px 0;border-bottom:0.5px solid var(--border);display:grid;grid-template-columns:18px 1fr;gap:6px;}
+.rc-step:last-child{border-bottom:none;}
+.rc-step-num{font-size:10px;color:var(--muted);padding-top:1px;}
+.rc-nutr{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:0.8rem;}
+.rc-footer{padding:0.7rem 1rem;border-top:1px solid var(--border);background:var(--cream);display:flex;flex-direction:column;gap:8px;}
+.rc-footer-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+.rc-footer-btns{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.serves-row{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);}
+.serves-btn{width:22px;height:22px;border:0.5px solid var(--border);border-radius:2px;background:none;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;}
+.serves-btn:hover{background:var(--sage-pale);border-color:var(--sage);}
+.serves-val{font-size:12px;font-weight:500;color:var(--ink);min-width:16px;text-align:center;}
+.rc-add-btn{font-family:'DM Mono',monospace;font-size:10px;padding:5px 12px;border-radius:2px;border:0.5px solid var(--sage);color:var(--sage);background:none;cursor:pointer;white-space:nowrap;letter-spacing:0.04em;}
+.rc-add-btn:hover{background:var(--sage);color:white;}
+.rc-add-btn.added{background:var(--sage);color:white;}
+.rc-expand-btn{font-size:10px;color:var(--muted);background:none;border:none;cursor:pointer;padding:3px 6px;text-transform:uppercase;letter-spacing:0.06em;}
+.rc-expand-btn:hover{color:var(--ink);}
+.rc-cook-link{font-family:'DM Mono',monospace;font-size:10px;padding:5px 12px;border-radius:2px;border:0.5px solid var(--gold);color:var(--gold);background:none;cursor:pointer;white-space:nowrap;letter-spacing:0.04em;text-decoration:none;display:inline-block;}
+.rc-cook-link:hover{background:var(--gold-pale);}
+.rc-url-row{display:none;gap:6px;align-items:center;margin-top:2px;}
+.rc-url-row.open{display:flex;}
+.rc-url-input{font-family:'DM Mono',monospace;font-size:10px;flex:1;border:0.5px solid var(--border);border-radius:2px;padding:4px 7px;background:white;outline:none;color:var(--muted);}
+.rc-url-input:focus{border-color:var(--gold);}
+.rc-url-save{font-family:'DM Mono',monospace;font-size:10px;padding:4px 9px;border-radius:2px;border:0.5px solid var(--border);background:none;cursor:pointer;color:var(--muted);}
+.rc-url-save:hover{border-color:var(--sage);color:var(--sage);}
+.rc-link-toggle{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);background:none;border:none;cursor:pointer;padding:2px 4px;letter-spacing:0.04em;}
+.rc-link-toggle:hover{color:var(--gold);}
+.rc-detail{display:none;padding:0 1rem 0.8rem;}
+.rc-detail.open{display:block;}
+.wl-empty{font-size:12px;color:var(--muted);padding:1.5rem 0;text-align:center;}
+/* HISTORY */
+.hw{background:var(--card);border:1px solid var(--border);border-radius:4px;margin-bottom:7px;overflow:hidden;}
+.hw-hdr{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;cursor:pointer;background:var(--cream);transition:background 0.1s;}
+.hw-hdr:hover{background:var(--sage-pale);}
+.hw-title{font-size:12px;font-weight:500;}
+.hw-meta{font-size:11px;color:var(--muted);}
+.hw-body{display:none;padding:10px 13px;border-top:1px solid var(--border);}
+.hw-body.open{display:block;}
+.hw-week-items{font-size:11px;color:var(--muted);margin-bottom:6px;}
+.empty-state{text-align:center;padding:3rem 1rem;color:var(--muted);font-size:12px;}
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center;padding:1rem;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--cream);border:1px solid var(--border);border-radius:4px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;}
+.modal-hdr{background:var(--ink);color:var(--cream);padding:0.8rem 1.2rem;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;}
+.modal-close{background:none;border:none;color:#A0997A;cursor:pointer;font-size:16px;}
+.modal-body{padding:1.2rem;}
+.field{margin-bottom:0.9rem;}
+.field label{font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px;}
+.field input,.field select,.field textarea{font-family:'DM Mono',monospace;font-size:12px;width:100%;border:0.5px solid var(--border);border-radius:2px;padding:6px 9px;background:white;outline:none;}
+.field textarea{resize:vertical;min-height:60px;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--sage);}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.field-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.modal-footer{padding:0.8rem 1.2rem;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
+@media(max-width:600px){
+  .quality-grid{grid-template-columns:repeat(2,1fr);}
+  .recipe-grid{grid-template-columns:1fr;}
+  .field-row,.field-row3{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="hinner">
+    <div class="htop">
+      <div>
+        <div class="htitle">Sunday Batch<br><em>Weekly Tracker</em></div>
+        <div class="hsub">Grocery · Recipes · Nutrition</div>
+      </div>
+      <div class="week-badge" id="week-badge">Week of —</div>
+    </div>
+  </div>
+</header>
+<div class="tabs">
+  <div class="tabs-inner">
+    <button class="tab-btn active" id="tbtn-weekly" onclick="switchTab('weekly',this)">Weekly List</button>
+    <button class="tab-btn" id="tbtn-recipes" onclick="switchTab('recipes',this)">Recipes</button>
+    <button class="tab-btn" id="tbtn-inventory" onclick="switchTab('inventory',this)">Inventory</button>
+    <button class="tab-btn" id="tbtn-history" onclick="switchTab('history',this)">History</button>
+  </div>
+</div>
+<div class="main">
+
+<!-- WEEKLY LIST -->
+<div class="tab-panel active" id="tab-weekly">
+  <div class="panel">
+    <div class="panel-hdr">Nutritional quality — this week <span>Based on items checked · signals reflect what you bought, not portioned intake</span></div>
+    <div class="quality-grid">
+      <div class="qcell"><div class="qlabel">Complete protein</div><div class="qstatus neutral" id="q-protein">— Add items</div><div class="qbar"><div class="qbar-fill" id="qb-protein" style="width:0%;background:var(--sage)"></div></div></div>
+      <div class="qcell"><div class="qlabel">Added sugar load</div><div class="qstatus neutral" id="q-sugar">— Add items</div><div class="qbar"><div class="qbar-fill" id="qb-sugar" style="width:0%;background:var(--gold)"></div></div></div>
+      <div class="qcell"><div class="qlabel">Heart health</div><div class="qstatus neutral" id="q-heart">— Add items</div><div class="qbar"><div class="qbar-fill" id="qb-heart" style="width:0%;background:var(--rust)"></div></div></div>
+      <div class="qcell"><div class="qlabel">Fiber diversity</div><div class="qstatus neutral" id="q-fiber">— Add items</div><div class="qbar"><div class="qbar-fill" id="qb-fiber" style="width:0%;background:#2A8A6A"></div></div></div>
+      <div class="qcell"><div class="qlabel">Sodium risk</div><div class="qstatus neutral" id="q-sodium">— Add items</div><div class="qbar"><div class="qbar-fill" id="qb-sodium" style="width:0%;background:#8A5A8A"></div></div></div>
+      <div class="qcell"><div class="qlabel">Omega-3 / anti-inflam.</div><div class="qstatus neutral" id="q-omega">— Add items</div><div class="qbar"><div class="qbar-fill" id="qb-omega" style="width:0%;background:var(--patel)"></div></div></div>
+      <div class="qcell"><div class="qlabel">Sat. fat (heart)</div><div class="qstatus neutral" id="q-satfat">— Add items</div><div class="qbar"><div class="qbar-fill" id="qb-satfat" style="width:0%;background:#C44A4A"></div></div></div>
+      <div class="qcell"><div class="qlabel">Micronutrient variety</div><div class="qstatus neutral" id="q-micro">— Add items</div><div class="qbar"><div class="qbar-fill" id="qb-micro" style="width:0%;background:#6A8A4A"></div></div></div>
+    </div>
+    <div class="panel-footer" id="wl-summary">No items yet — add from Inventory or tap "Add to week" on a Recipe</div>
+  </div>
+  <div class="btn-row">
+    <button class="btn" onclick="switchTab('recipes',document.getElementById('tbtn-recipes'))">+ From recipes</button>
+    <button class="btn" onclick="switchTab('inventory',document.getElementById('tbtn-inventory'))">+ From inventory</button>
+    <button class="btn danger" onclick="resetWeek()">↺ New week</button>
+  </div>
+  <div id="weekly-list-sections"></div>
+</div>
+
+<!-- RECIPES -->
+<div class="tab-panel" id="tab-recipes">
+  <div class="btn-row">
+    <button class="btn primary" onclick="openRecipeModal()">+ Add recipe</button>
+  </div>
+  <div class="recipe-grid" id="recipe-grid"></div>
+</div>
+
+<!-- INVENTORY -->
+<div class="tab-panel" id="tab-inventory">
+  <div class="btn-row">
+    <button class="btn primary" onclick="openAddModal()">+ Add new item</button>
+  </div>
+  <input class="search-box" id="inv-search" placeholder="Search inventory by name, category, or brand…" oninput="renderInventory()">
+  <div id="inventory-sections"></div>
+</div>
+
+<!-- HISTORY -->
+<div class="tab-panel" id="tab-history">
+  <div class="btn-row">
+    <button class="btn primary" onclick="exportJSON()">↓ Export JSON</button>
+    <button class="btn primary" onclick="exportCSV()">↓ Export CSV</button>
+  </div>
+  <div id="history-list"></div>
+</div>
+</div>
+
+<!-- ITEM MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-hdr"><span id="modal-title">Add item</span><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="modal-edit-id">
+      <div class="field"><label>Item name</label><input type="text" id="f-name" placeholder="e.g. Salmon fillets"></div>
+      <div class="field-row">
+        <div class="field"><label>Category</label><select id="f-cat"><option>Protein</option><option>Dairy & Refrigerated</option><option>Produce</option><option>Grains & Dry Goods</option><option>Spices & Condiments</option><option>Frozen</option><option>Beverages</option><option>Snacks</option><option>Kitchen Supplies</option><option>Other</option></select></div>
+        <div class="field"><label>Quantity / unit</label><input type="text" id="f-qty" placeholder="e.g. 2 fillets"></div>
+      </div>
+      <div class="field"><label>Brand recommendation</label><input type="text" id="f-brand" placeholder="Best: X · Good: Y · Ok: Z"></div>
+      <div class="field"><label>Where to find in DMV</label><input type="text" id="f-where" placeholder="e.g. MOM's Organic, Trader Joe's"></div>
+      <div class="field"><label>Note (optional)</label><input type="text" id="f-note" placeholder="e.g. wild-caught preferred"></div>
+      <div class="field"><label>Patel Brothers item?</label><select id="f-patel"><option value="0">No</option><option value="1">Yes</option></select></div>
+      <div style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;padding-top:4px;border-top:0.5px solid var(--border);">Nutrition per default portion</div>
+      <div class="field-row">
+        <div class="field"><label>Default portion</label><input type="text" id="f-portion" placeholder="e.g. 1 cup"></div>
+        <div class="field"><label>Calories</label><input type="number" id="f-cal" placeholder="0" min="0"></div>
+      </div>
+      <div class="field-row3">
+        <div class="field"><label>Protein (g)</label><input type="number" id="f-protein" placeholder="0" min="0"></div>
+        <div class="field"><label>Carbs (g)</label><input type="number" id="f-carbs" placeholder="0" min="0"></div>
+        <div class="field"><label>Sugar (g)</label><input type="number" id="f-sugar" placeholder="0" min="0"></div>
+      </div>
+      <div class="field-row3">
+        <div class="field"><label>Fat (g)</label><input type="number" id="f-fat" placeholder="0" min="0"></div>
+        <div class="field"><label>Sat. Fat (g)</label><input type="number" id="f-satfat" placeholder="0" min="0"></div>
+        <div class="field"><label>Sodium (mg)</label><input type="number" id="f-sodium" placeholder="0" min="0"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Fiber (g)</label><input type="number" id="f-fiber" placeholder="0" min="0"></div>
+        <div class="field"><label>Flags (protein,heart,fiber,omega)</label><input type="text" id="f-flags" placeholder="e.g. protein, heart"></div>
+      </div>
+      <div class="field"><label>Nutrition note</label><input type="text" id="f-nutrnote" placeholder="e.g. High omega-3 — heart health"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn primary" onclick="saveItem()">Save item</button>
+    </div>
+  </div>
+</div>
+
+<!-- RECIPE MODAL -->
+<div class="modal-overlay" id="recipe-modal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-hdr"><span id="recipe-modal-title">Add recipe</span><button class="modal-close" onclick="closeRecipeModal()">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="rm-edit-id">
+      <div class="field-row">
+        <div class="field"><label>Recipe name</label><input type="text" id="rm-name" placeholder="e.g. Keema"></div>
+        <div class="field"><label>Default servings</label><input type="number" id="rm-serves" placeholder="4" min="1"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Prep time</label><input type="text" id="rm-prep" placeholder="e.g. 20 min"></div>
+        <div class="field"><label>Cook time</label><input type="text" id="rm-cook" placeholder="e.g. 45 min"></div>
+      </div>
+      <div class="field"><label>Tags (comma-sep)</label><input type="text" id="rm-tags" placeholder="e.g. batch, high-protein, freezer-friendly"></div>
+      <div class="field"><label>Ingredients (one per line: quantity · item name)</label><textarea id="rm-ingredients" placeholder="1 lb · Ground turkey&#10;1 large · Vidalia onion&#10;3 tbsp · Olive oil"></textarea></div>
+      <div class="field"><label>Steps (one per line)</label><textarea id="rm-steps" placeholder="Brown the turkey over medium heat, breaking into crumbles.&#10;Add onion and cook until softened, about 8 minutes."></textarea></div>
+      <div class="field"><label>Notes (optional)</label><textarea id="rm-notes" placeholder="e.g. Freezes well in Souper Cubes. Reheat with a splash of water."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeRecipeModal()">Cancel</button>
+      <button class="btn primary" onclick="saveRecipe()">Save recipe</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════ INVENTORY DATA ═══════════════════════════════
+const DEFAULT_INVENTORY=[
+  {id:'turkey',name:'Ground turkey',cat:'Protein',qty:'1½ lbs',brand:'Best: Diestel Family Ranch organic · Good: MOM\'s store brand organic · Ok: Applegate Naturals (check Boycat)',where:'MOM\'s Organic (Van Ness), Whole Foods, Harris Teeter',patel:false,portion:'1 cup cooked',nutr:{cal:280,protein:34,carbs:0,sugar:0,fat:10,satfat:2.5,sodium:120,fiber:0},nutrNote:'Lean protein base',flags:['protein']},
+  {id:'salmon',name:'Salmon fillets',cat:'Protein',qty:'2 fillets',brand:'Best: Wild Planet wild-caught (canned) · Good: Fresh Alaskan at MOM\'s seafood counter · Ok: Trader Joe\'s wild-caught frozen fillets',where:'MOM\'s Organic, Whole Foods, Wegmans, Trader Joe\'s',patel:false,portion:'1 fillet (6oz)',nutr:{cal:250,protein:35,carbs:0,sugar:0,fat:11,satfat:2,sodium:70,fiber:0},nutrNote:'High omega-3 — heart health ✓',flags:['protein','omega','heart']},
+  {id:'chickenbreast',name:'Chicken breast',cat:'Protein',qty:'1–1.5 lbs',brand:'Best: Bell & Evans air-chilled organic · Good: Whole Foods 365 organic · Ok: Perdue Harvestland (check Boycat)',where:'MOM\'s Organic, Whole Foods, Harris Teeter',patel:false,portion:'1 breast (6oz)',nutr:{cal:185,protein:35,carbs:0,sugar:0,fat:4,satfat:1,sodium:74,fiber:0},nutrNote:'High protein, very lean',flags:['protein']},
+  {id:'chickenthigh',name:'Chicken thighs (boneless)',cat:'Protein',qty:'1.5 lbs',brand:'Best: Bell & Evans air-chilled organic · Good: Whole Foods 365 organic · Ok: any air-chilled organic',where:'MOM\'s Organic, Whole Foods',patel:false,portion:'1 thigh (4oz)',nutr:{cal:180,protein:24,carbs:0,sugar:0,fat:9,satfat:2.5,sodium:85,fiber:0},nutrNote:'More flavorful than breast, still lean',flags:['protein']},
+  {id:'tuna',name:'Canned tuna',cat:'Protein',qty:'2–3 cans',brand:'Best: Wild Planet wild albacore · Good: Safe Catch Elite (low mercury) · Ok: Trader Joe\'s albacore in water (check Boycat)',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'1 can (5oz)',nutr:{cal:150,protein:33,carbs:0,sugar:0,fat:1,satfat:0,sodium:270,fiber:0},nutrNote:'Very high protein, low fat',flags:['protein']},
+  {id:'shrimp',name:'Shrimp (frozen, wild-caught)',cat:'Protein',qty:'1 lb bag',brand:'Fisherman\'s Market wild-caught',where:'Whole Foods, Wegmans',patel:false,portion:'4 oz',nutr:{cal:112,protein:24,carbs:0,sugar:0,fat:1.5,satfat:0,sodium:805,fiber:0},nutrNote:'Watch sodium — rinse before cooking'},
+  {id:'eggwhites',name:'Liquid egg whites',cat:'Protein',qty:'⅔ cup',brand:'Best: Vital Farms · Good: Pete & Gerry\'s organic · Ok: store brand (check Boycat — avoid Cal-Maine)',where:'MOM\'s Organic, Whole Foods, Harris Teeter',patel:false,portion:'⅔ cup',nutr:{cal:80,protein:17,carbs:1,sugar:1,fat:0,satfat:0,sodium:240,fiber:0},nutrNote:'Pure protein, zero fat',flags:['protein']},
+  {id:'eggs',name:'Large whole eggs',cat:'Protein',qty:'1 dozen',brand:'Best: Vital Farms pasture-raised · Good: Pete & Gerry\'s organic · Ok: Trader Joe\'s organic cage-free',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'2 eggs',nutr:{cal:140,protein:12,carbs:1,sugar:1,fat:10,satfat:3,sodium:140,fiber:0},nutrNote:'Choline + healthy fats',flags:['protein']},
+  {id:'tofu',name:'Extra-firm tofu',cat:'Protein',qty:'1 block',brand:'Hodo organic or Wildwood',where:'MOM\'s Organic, Whole Foods, H Mart (Wheaton)',patel:false,portion:'½ block (3oz)',nutr:{cal:70,protein:8,carbs:1,sugar:0,fat:4,satfat:0.5,sodium:10,fiber:0},nutrNote:'Plant protein · iron · calcium',flags:['protein']},
+  {id:'lentils',name:'Green or brown lentils',cat:'Protein',qty:'1 cup dry',brand:'Bob\'s Red Mill or bulk bins at MOM\'s',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'½ cup cooked',nutr:{cal:115,protein:9,carbs:20,sugar:0,fat:0.5,satfat:0,sodium:2,fiber:8},nutrNote:'High protein + fiber — note digestibility',flags:['protein','fiber']},
+  {id:'chickpeas',name:'Chickpeas (canned)',cat:'Protein',qty:'1 can',brand:'Eden Organics — BPA-free can, not flagged',where:'MOM\'s Organic, Whole Foods',patel:false,portion:'½ cup',nutr:{cal:135,protein:7,carbs:22,sugar:4,fat:2,satfat:0,sodium:35,fiber:6},nutrNote:'High fiber · plant protein',flags:['protein','fiber']},
+  {id:'milk',name:'Lactose-free 2% milk',cat:'Dairy & Refrigerated',qty:'½ gallon',brand:'Best: Organic Valley Lactose-Free 2% (co-op, not flagged) · Good: Green Valley Creamery lactose-free · Avoid: Lactaid (J&J flagged)',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'1 cup',nutr:{cal:130,protein:8,carbs:13,sugar:12,fat:5,satfat:3,sodium:130,fiber:0},nutrNote:'Choose Organic Valley over Lactaid (J&J flagged)'},
+  {id:'yogurt',name:'2% Greek yogurt',cat:'Dairy & Refrigerated',qty:'32 oz',brand:'Best: Chobani 2% (independent, not flagged) · Good: Stonyfield organic 2% (scan Boycat — Danone) · Ok: Trader Joe\'s 2% Greek',where:'MOM\'s Organic, Whole Foods, Harris Teeter, Trader Joe\'s',patel:false,portion:'¾ cup',nutr:{cal:130,protein:17,carbs:9,sugar:7,fat:3.5,satfat:2,sodium:65,fiber:0},nutrNote:'Probiotic · high protein-to-sugar ratio',flags:['protein']},
+  {id:'kefir',name:'Plain kefir',cat:'Dairy & Refrigerated',qty:'32 oz',brand:'Best: Green Valley Creamery organic · Good: Lifeway (scan Boycat) · Ok: Nancy\'s organic kefir',where:'MOM\'s Organic, Whole Foods',patel:false,portion:'1 cup',nutr:{cal:110,protein:11,carbs:12,sugar:8,fat:2,satfat:1,sodium:125,fiber:0},nutrNote:'Excellent probiotic · digestive health',flags:['protein']},
+  {id:'feta',name:'Feta cheese',cat:'Dairy & Refrigerated',qty:'4 oz',brand:'Best: Valbreso French (sheep\'s milk, independent) · Good: Dodoni Greek · Ok: Trader Joe\'s French feta',where:'Whole Foods, Wegmans, Trader Joe\'s',patel:false,portion:'1 oz (2 tbsp crumbled)',nutr:{cal:75,protein:4,carbs:1,sugar:0,fat:6,satfat:4,sodium:316,fiber:0},nutrNote:'Watch sodium — use as accent only'},
+  {id:'onion',name:'Vidalia onion',cat:'Produce',qty:'2 onions',brand:'Local or organic preferred',where:'MOM\'s Organic, Whole Foods, any grocery',patel:false,portion:'1 medium onion',nutr:{cal:60,protein:2,carbs:14,sugar:9,fat:0,satfat:0,sodium:5,fiber:2},nutrNote:'Natural sugars — low concern'},
+  {id:'redOnion',name:'Red onion',cat:'Produce',qty:'1 onion',brand:'Organic preferred',where:'MOM\'s Organic, any grocery',patel:false,portion:'½ onion',nutr:{cal:30,protein:1,carbs:7,sugar:5,fat:0,satfat:0,sodium:2,fiber:1},nutrNote:'Quercetin — anti-inflammatory',flags:['heart']},
+  {id:'tomatoes',name:'Plum tomatoes',cat:'Produce',qty:'4 tomatoes',brand:'Organic preferred',where:'MOM\'s Organic, Whole Foods, Harris Teeter',patel:false,portion:'2 tomatoes',nutr:{cal:22,protein:1,carbs:5,sugar:3,fat:0,satfat:0,sodium:6,fiber:1},nutrNote:'Lycopene — heart health ✓',flags:['heart']},
+  {id:'cherryTomatoes',name:'Cherry tomatoes',cat:'Produce',qty:'1 pint',brand:'Organic preferred',where:'MOM\'s Organic, Trader Joe\'s, Whole Foods',patel:false,portion:'1 cup',nutr:{cal:27,protein:1,carbs:6,sugar:4,fat:0,satfat:0,sodium:7,fiber:2},nutrNote:'Lycopene · vitamin C',flags:['heart']},
+  {id:'cilantro',name:'Fresh cilantro',cat:'Produce',qty:'1 bunch',brand:'Organic preferred',where:'MOM\'s Organic, any grocery, Patel Brothers',patel:false,portion:'¼ cup',nutr:{cal:1,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:3,fiber:0},nutrNote:'Anti-inflammatory'},
+  {id:'spinach',name:'Fresh spinach',cat:'Produce',qty:'5 oz bag',brand:'Earthbound Farm organic',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'2 cups',nutr:{cal:14,protein:2,carbs:2,sugar:0,fat:0,satfat:0,sodium:48,fiber:1},nutrNote:'Iron · folate · vitamin K',flags:['fiber','heart']},
+  {id:'romaine',name:'Romaine',cat:'Produce',qty:'1 head',brand:'Organic preferred',where:'MOM\'s Organic, Whole Foods, Harris Teeter',patel:false,portion:'2 cups',nutr:{cal:16,protein:1,carbs:3,sugar:1,fat:0,satfat:0,sodium:14,fiber:2},nutrNote:'Vitamin A · folate',flags:['fiber']},
+  {id:'arugula',name:'Arugula',cat:'Produce',qty:'1 bag (5oz)',brand:'Earthbound Farm organic',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'2 cups',nutr:{cal:20,protein:2,carbs:3,sugar:1,fat:0,satfat:0,sodium:44,fiber:1},nutrNote:'Vitamin K · calcium · anti-inflammatory',flags:['heart']},
+  {id:'bokchoy',name:'Bok choy',cat:'Produce',qty:'1 head',brand:'Organic preferred',where:'MOM\'s Organic, H Mart (Wheaton/Rockville), Whole Foods',patel:false,portion:'1 cup chopped',nutr:{cal:9,protein:1,carbs:2,sugar:1,fat:0,satfat:0,sodium:46,fiber:1},nutrNote:'Calcium · vitamin C · very low cal',flags:['heart']},
+  {id:'kale',name:'Kale (curly or lacinato)',cat:'Produce',qty:'1 bunch',brand:'Organic preferred',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'1 cup chopped',nutr:{cal:33,protein:3,carbs:7,sugar:0,fat:0.5,satfat:0,sodium:29,fiber:2},nutrNote:'Vitamin K · C · A — heart health',flags:['fiber','heart']},
+  {id:'potatoes',name:'Potatoes',cat:'Produce',qty:'2 lbs',brand:'Organic preferred',where:'MOM\'s Organic, any grocery',patel:false,portion:'½ cup roasted',nutr:{cal:90,protein:2,carbs:20,sugar:1,fat:0.5,satfat:0,sodium:15,fiber:2},nutrNote:'High carb — moderate portions',flags:['fiber']},
+  {id:'sweetpotato',name:'Sweet potatoes',cat:'Produce',qty:'2 medium',brand:'Organic preferred',where:'MOM\'s Organic, Trader Joe\'s, any grocery',patel:false,portion:'½ cup roasted',nutr:{cal:90,protein:2,carbs:21,sugar:7,fat:0,satfat:0,sodium:36,fiber:3},nutrNote:'Beta-carotene · fiber · lower GI than white potato',flags:['fiber']},
+  {id:'broccolini',name:'Broccolini',cat:'Produce',qty:'1 bunch',brand:'Organic preferred',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'1 cup roasted',nutr:{cal:45,protein:4,carbs:7,sugar:2,fat:1,satfat:0,sodium:65,fiber:3},nutrNote:'Vitamin C · K · folate',flags:['fiber','heart']},
+  {id:'broccoli',name:'Broccoli',cat:'Produce',qty:'1 head',brand:'Organic preferred',where:'MOM\'s Organic, any grocery',patel:false,portion:'1 cup florets',nutr:{cal:31,protein:3,carbs:6,sugar:2,fat:0,satfat:0,sodium:30,fiber:2},nutrNote:'Sulforaphane — cancer-protective',flags:['fiber','heart']},
+  {id:'bellpepper',name:'Bell peppers (red/yellow)',cat:'Produce',qty:'2 peppers',brand:'Organic preferred',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'½ pepper',nutr:{cal:25,protein:1,carbs:6,sugar:4,fat:0,satfat:0,sodium:2,fiber:2},nutrNote:'Vitamin C · antioxidants',flags:['heart']},
+  {id:'cucumber',name:'Cucumber',cat:'Produce',qty:'1 large',brand:'Organic preferred',where:'MOM\'s Organic, any grocery',patel:false,portion:'½ cucumber',nutr:{cal:8,protein:0,carbs:2,sugar:1,fat:0,satfat:0,sodium:1,fiber:0},nutrNote:'Hydrating · very low cal'},
+  {id:'avocado',name:'Avocado',cat:'Produce',qty:'2',brand:'Organic preferred',where:'MOM\'s Organic, Trader Joe\'s, Whole Foods',patel:false,portion:'½ avocado',nutr:{cal:120,protein:2,carbs:6,sugar:0,fat:11,satfat:1.5,sodium:5,fiber:5},nutrNote:'Monounsaturated fat · heart health',flags:['heart','fiber']},
+  {id:'lemon',name:'Lemons',cat:'Produce',qty:'3',brand:'Organic preferred',where:'MOM\'s Organic, any grocery',patel:false,portion:'1 lemon (juice)',nutr:{cal:12,protein:0,carbs:4,sugar:1,fat:0,satfat:0,sodium:1,fiber:0},nutrNote:'Vitamin C · brightens dishes'},
+  {id:'cherries',name:'Cherries (fresh or frozen)',cat:'Produce',qty:'1 lb',brand:'Organic preferred — Bing or tart cherries',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s (frozen year-round)',patel:false,portion:'1 cup (about 21 cherries)',nutr:{cal:97,protein:2,carbs:25,sugar:20,fat:0,satfat:0,sodium:0,fiber:3},nutrNote:'Natural melatonin · anti-inflammatory · watch sugar',flags:['fiber']},
+  {id:'ginger',name:'Ginger (fresh or paste)',cat:'Produce',qty:'1 knob or jar',brand:'Fresh preferred; MDH or Shan paste if jarred',where:'Patel Brothers (Rockville/Herndon), H Mart, MOM\'s Organic',patel:true,portion:'1 tsp',nutr:{cal:5,protein:0,carbs:1,sugar:0,fat:0,satfat:0,sodium:2,fiber:0},nutrNote:'Anti-inflammatory · digestion'},
+  {id:'garlic',name:'Garlic (fresh or paste)',cat:'Produce',qty:'1 bulb or jar',brand:'Fresh preferred; organic jarred minced',where:'Patel Brothers, any grocery, MOM\'s Organic',patel:true,portion:'1 tsp',nutr:{cal:5,protein:0,carbs:1,sugar:0,fat:0,satfat:0,sodium:1,fiber:0},nutrNote:'Cardiovascular benefits · immune',flags:['heart']},
+  {id:'quinoa',name:'White quinoa',cat:'Grains & Dry Goods',qty:'2 cups dry',brand:'Best: Ancient Harvest organic (independent) · Good: Bob\'s Red Mill organic · Ok: Trader Joe\'s organic quinoa',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'1 cup cooked',nutr:{cal:222,protein:8,carbs:39,sugar:0,fat:3.5,satfat:0.5,sodium:13,fiber:5},nutrNote:'Complete protein · low glycemic',flags:['protein','fiber']},
+  {id:'rice',name:'White rice',cat:'Grains & Dry Goods',qty:'2 cups dry',brand:'Best: Lundberg Family Farms organic (independent) · Good: Koda Farms organic · Ok: Trader Joe\'s organic jasmine',where:'MOM\'s Organic, Whole Foods',patel:false,portion:'1 cup cooked',nutr:{cal:206,protein:4,carbs:45,sugar:0,fat:0.5,satfat:0,sodium:3,fiber:1},nutrNote:'Blended with quinoa for lower GI'},
+  {id:'brownrice',name:'Brown rice',cat:'Grains & Dry Goods',qty:'2 cups dry',brand:'Best: Lundberg Family Farms organic · Good: Massa Organics · Ok: Trader Joe\'s organic brown rice',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'1 cup cooked',nutr:{cal:216,protein:5,carbs:45,sugar:0,fat:1.5,satfat:0,sodium:10,fiber:3.5},nutrNote:'Higher fiber than white · more filling',flags:['fiber']},
+  {id:'farro',name:'Farro',cat:'Grains & Dry Goods',qty:'1 cup dry',brand:'Bob\'s Red Mill or Bluebird Grain Farms',where:'MOM\'s Organic, Whole Foods',patel:false,portion:'½ cup cooked',nutr:{cal:170,protein:6,carbs:34,sugar:0,fat:1,satfat:0,sodium:0,fiber:3},nutrNote:'Ancient grain · nutty flavor · high fiber',flags:['fiber']},
+  {id:'oats',name:'Rolled oats',cat:'Grains & Dry Goods',qty:'1 lb',brand:'Best: Bob\'s Red Mill organic (independent) · Good: One Degree Organic · Ok: Trader Joe\'s organic rolled oats',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'½ cup dry',nutr:{cal:150,protein:5,carbs:27,sugar:1,fat:3,satfat:0.5,sodium:0,fiber:4},nutrNote:'Beta-glucan — lowers LDL cholesterol',flags:['fiber','heart']},
+  {id:'redlentils',name:'Red lentils',cat:'Grains & Dry Goods',qty:'1 cup dry',brand:'Bob\'s Red Mill or Palouse Brand',where:'MOM\'s Organic, Whole Foods, Patel Brothers',patel:true,portion:'½ cup cooked',nutr:{cal:115,protein:9,carbs:20,sugar:0,fat:0,satfat:0,sodium:2,fiber:8},nutrNote:'Fast-cooking · high fiber + protein',flags:['protein','fiber']},
+  {id:'oliveoil',name:'Olive oil',cat:'Spices & Condiments',qty:'1 bottle',brand:'Best: California Olive Ranch EVOO (independent) or Bragg organic · Good: Kirkland organic EVOO (Costco) · Ok: any EVOO with harvest date on label',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'1 tbsp',nutr:{cal:119,protein:0,carbs:0,sugar:0,fat:14,satfat:2,sodium:0,fiber:0},nutrNote:'Heart-healthy monounsaturated fat',flags:['heart']},
+  {id:'avocadooil',name:'Avocado oil',cat:'Spices & Condiments',qty:'1 bottle',brand:'Best: Chosen Foods (independent, not flagged) · Good: Primal Kitchen · Ok: Trader Joe\'s 100% avocado oil',where:'MOM\'s Organic, Whole Foods, Costco',patel:false,portion:'1 tbsp',nutr:{cal:124,protein:0,carbs:0,sugar:0,fat:14,satfat:1.5,sodium:0,fiber:0},nutrNote:'High smoke point · heart-healthy',flags:['heart']},
+  {id:'acv',name:'Apple cider vinegar',cat:'Spices & Condiments',qty:'1 bottle',brand:'Best: Bragg with the mother (independent) · Good: Dynamic Health · Ok: any raw unfiltered ACV with the mother',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'1 tbsp',nutr:{cal:3,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:1,fiber:0},nutrNote:'Blood sugar regulation'},
+  {id:'mustard',name:'Dijon mustard',cat:'Spices & Condiments',qty:'1 jar',brand:'Best: Annie\'s organic (not flagged) · Good: Sir Kensington\'s · Ok: Grey Poupon (scan Boycat — Kraft Heinz)',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'1 tsp',nutr:{cal:3,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:55,fiber:0}},
+  {id:'tamari',name:'Tamari (gluten-free soy sauce)',cat:'Spices & Condiments',qty:'1 bottle',brand:'Best: San-J organic (independent) · Good: Eden Foods organic tamari · Ok: Kikkoman less-sodium (scan Boycat)',where:'MOM\'s Organic, Whole Foods, H Mart',patel:false,portion:'1 tbsp',nutr:{cal:11,protein:2,carbs:1,sugar:0,fat:0,satfat:0,sodium:700,fiber:0},nutrNote:'Watch sodium — use sparingly'},
+  {id:'honey',name:'Raw honey',cat:'Spices & Condiments',qty:'1 jar',brand:'Local DC/MD honey — check farmers markets',where:'MOM\'s Organic, Eastern Market, Dupont Circle Farmers Market',patel:false,portion:'1 tsp',nutr:{cal:21,protein:0,carbs:6,sugar:6,fat:0,satfat:0,sodium:0,fiber:0},nutrNote:'Natural sugar — small quantity'},
+  {id:'mapleSyrup',name:'Maple syrup',cat:'Spices & Condiments',qty:'1 bottle',brand:'Coombs Family Farms — independent, not flagged',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'1 tbsp',nutr:{cal:52,protein:0,carbs:13,sugar:12,fat:0,satfat:0,sodium:2,fiber:0},nutrNote:'Lower glycemic than refined sugar · use sparingly'},
+  {id:'tahini',name:'Tahini',cat:'Spices & Condiments',qty:'1 jar',brand:'Best: Soom Foods (Philly independent) · Good: Once Again organic · Ok: Trader Joe\'s organic tahini',where:'MOM\'s Organic, Whole Foods, Eastern Market',patel:false,portion:'1 tbsp',nutr:{cal:89,protein:3,carbs:3,sugar:0,fat:8,satfat:1,sodium:17,fiber:1},nutrNote:'Calcium · healthy fats'},
+  {id:'coriander',name:'Dhania (ground coriander)',cat:'Spices & Condiments',qty:'1 jar',brand:'Best: Frontier Co-op bulk (MOM\'s) · Good: Simply Organic · Ok: any organic ground coriander',where:'MOM\'s Organic, Whole Foods',patel:false,portion:'1 tsp',nutr:{cal:6,protein:0,carbs:1,sugar:0,fat:0,satfat:0,sodium:1,fiber:0}},
+  {id:'kashmiri',name:'Kashmiri mirch (mild chili powder)',cat:'Spices & Condiments',qty:'1 bag',brand:'MDH or Shan brand',where:'Patel Brothers (Rockville · Herndon), India Bazaar (Sterling)',patel:true,portion:'½ tsp',nutr:{cal:3,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:1,fiber:0},nutrNote:'Capsaicin — anti-inflammatory · Sub: ¼ tsp cayenne + ¼ tsp paprika if unavailable'},
+  {id:'cayenne',name:'Cayenne pepper',cat:'Spices & Condiments',qty:'1 jar',brand:'Best: Frontier Co-op · Good: Simply Organic · Ok: any pure cayenne (not a blend)',where:'MOM\'s Organic, Whole Foods, any grocery',patel:false,portion:'¼ tsp',nutr:{cal:3,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:0,fiber:0},nutrNote:'Much hotter than Kashmiri mirch — use half the quantity as a sub · Anti-inflammatory'},
+  {id:'turmeric',name:'Turmeric',cat:'Spices & Condiments',qty:'1 jar',brand:'Best: Frontier Co-op bulk · Good: Simply Organic · Ok: Patel Brothers bulk (very fresh)',where:'MOM\'s Organic, Whole Foods, Patel Brothers',patel:false,portion:'½ tsp',nutr:{cal:4,protein:0,carbs:1,sugar:0,fat:0,satfat:0,sodium:0,fiber:0},nutrNote:'Curcumin — powerful anti-inflammatory',flags:['heart']},
+  {id:'cumin',name:'Zeera (cumin)',cat:'Spices & Condiments',qty:'1 jar',brand:'Frontier Co-op or Patel Brothers bulk',where:'MOM\'s Organic, Whole Foods, Patel Brothers',patel:false,portion:'½ tsp',nutr:{cal:4,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:2,fiber:0}},
+  {id:'garam',name:'Garam masala',cat:'Spices & Condiments',qty:'1 jar',brand:'Frontier Co-op or MDH',where:'MOM\'s Organic, Patel Brothers',patel:false,portion:'¼ tsp',nutr:{cal:4,protein:0,carbs:1,sugar:0,fat:0,satfat:0,sodium:1,fiber:0}},
+  {id:'thyme',name:'Ground thyme',cat:'Spices & Condiments',qty:'1 jar',brand:'Frontier Co-op',where:'MOM\'s Organic, Whole Foods',patel:false,portion:'⅓ tsp',nutr:{cal:2,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:0,fiber:0}},
+  {id:'sage',name:'Ground sage',cat:'Spices & Condiments',qty:'1 jar',brand:'Frontier Co-op',where:'MOM\'s Organic, Whole Foods',patel:false,portion:'⅓ tsp',nutr:{cal:2,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:0,fiber:0}},
+  {id:'oregano',name:'Dried oregano',cat:'Spices & Condiments',qty:'1 jar',brand:'Frontier Co-op',where:'MOM\'s Organic, Whole Foods',patel:false,portion:'small pinch',nutr:{cal:2,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:0,fiber:0}},
+  {id:'redpepper',name:'Crushed red pepper flakes',cat:'Spices & Condiments',qty:'1 jar',brand:'Frontier Co-op',where:'MOM\'s Organic, Whole Foods, any grocery',patel:false,portion:'⅛ tsp',nutr:{cal:2,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:0,fiber:0}},
+  {id:'salt',name:'Salt',cat:'Spices & Condiments',qty:'1 box',brand:'Redmond Real Salt or Morton',where:'MOM\'s Organic, Whole Foods, any grocery',patel:false,portion:'weekly cooking use',nutr:{cal:0,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:580,fiber:0},nutrNote:'Watch cumulative sodium'},
+  {id:'pepper',name:'Black pepper',cat:'Spices & Condiments',qty:'1 jar',brand:'Frontier Co-op or Patel Brothers bulk',where:'MOM\'s Organic, Patel Brothers',patel:false,portion:'to taste',nutr:{cal:3,protein:0,carbs:1,sugar:0,fat:0,satfat:0,sodium:0,fiber:0}},
+  {id:'cinnamon',name:'Ground cinnamon',cat:'Spices & Condiments',qty:'1 jar',brand:'Frontier Co-op — Ceylon cinnamon preferred',where:'MOM\'s Organic, Whole Foods',patel:false,portion:'½ tsp',nutr:{cal:6,protein:0,carbs:2,sugar:0,fat:0,satfat:0,sodium:0,fiber:1},nutrNote:'Ceylon cinnamon — blood sugar regulation'},
+  {id:'cardamom',name:'Cardamom',cat:'Spices & Condiments',qty:'1 jar',brand:'Frontier Co-op or Patel Brothers bulk',where:'MOM\'s Organic, Patel Brothers (Rockville)',patel:true,portion:'¼ tsp',nutr:{cal:6,protein:0,carbs:1,sugar:0,fat:0,satfat:0,sodium:0,fiber:0},nutrNote:'Digestive health · anti-inflammatory'},
+  {id:'frozenPeas',name:'Frozen peas',cat:'Frozen',qty:'1 bag (16oz)',brand:'Best: Cascadian Farm organic · Good: Trader Joe\'s store brand organic · Ok: any frozen organic peas',where:'MOM\'s Organic, Trader Joe\'s, Whole Foods',patel:false,portion:'½ cup',nutr:{cal:62,protein:4,carbs:11,sugar:4,fat:0,satfat:0,sodium:58,fiber:4},nutrNote:'Already blanched · high fiber',flags:['fiber']},
+  {id:'frozenEdamame',name:'Frozen edamame (shelled)',cat:'Frozen',qty:'1 bag (12oz)',brand:'Best: Seapoint Farms organic · Good: Cascadian Farm · Ok: Trader Joe\'s or H Mart store brand',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s, H Mart',patel:false,portion:'½ cup',nutr:{cal:100,protein:9,carbs:8,sugar:2,fat:3.5,satfat:0.5,sodium:5,fiber:4},nutrNote:'Complete plant protein · high fiber',flags:['protein','fiber']},
+  {id:'frozenBroccoli',name:'Frozen broccoli florets',cat:'Frozen',qty:'1 bag (12oz)',brand:'Cascadian Farm organic',where:'MOM\'s Organic, Trader Joe\'s, Whole Foods',patel:false,portion:'1 cup',nutr:{cal:30,protein:3,carbs:6,sugar:2,fat:0,satfat:0,sodium:25,fiber:3},nutrNote:'Already blanched · convenient',flags:['fiber','heart']},
+  {id:'frozenCorn',name:'Frozen corn',cat:'Frozen',qty:'1 bag (16oz)',brand:'Cascadian Farm organic',where:'MOM\'s Organic, Trader Joe\'s, Whole Foods',patel:false,portion:'½ cup',nutr:{cal:70,protein:2,carbs:15,sugar:2,fat:0.5,satfat:0,sodium:0,fiber:2},nutrNote:'Natural sweetness · fiber'},
+  {id:'almonds',name:'Raw almonds',cat:'Snacks',qty:'1 lb bag',brand:'Best: Kirkland organic (Costco — great value) · Good: NOW Foods raw · Ok: Trader Joe\'s raw almonds',where:'Costco (Gaithersburg/Alexandria), MOM\'s Organic, Whole Foods',patel:false,portion:'1 oz (23 almonds)',nutr:{cal:164,protein:6,carbs:6,sugar:1,fat:14,satfat:1,sodium:0,fiber:4},nutrNote:'Heart-healthy fat · magnesium · fiber',flags:['heart','fiber']},
+  {id:'walnuts',name:'Walnuts',cat:'Snacks',qty:'½ lb bag',brand:'Best: bulk bins at MOM\'s (freshest) · Good: NOW Foods raw · Ok: Trader Joe\'s raw walnut halves',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'1 oz (14 halves)',nutr:{cal:185,protein:4,carbs:4,sugar:1,fat:18,satfat:1.5,sodium:1,fiber:2},nutrNote:'Highest omega-3 of all nuts',flags:['heart','omega']},
+  {id:'pumpkinSeeds',name:'Pumpkin seeds (pepitas)',cat:'Snacks',qty:'1 bag',brand:'NOW Foods or bulk bins at MOM\'s',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'2 tbsp',nutr:{cal:90,protein:5,carbs:3,sugar:0,fat:8,satfat:1.5,sodium:5,fiber:1},nutrNote:'Magnesium · zinc · healthy fats'},
+  {id:'ricecracker',name:'Brown rice crackers',cat:'Snacks',qty:'1 bag',brand:'Lundberg or Edward & Sons',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'10 crackers',nutr:{cal:120,protein:2,carbs:24,sugar:0,fat:2,satfat:0,sodium:120,fiber:1},nutrNote:'Gluten-free · light snack option'},
+  {id:'greenTea',name:'Green tea',cat:'Beverages',qty:'1 box (20 bags)',brand:'Best: Rishi organic (independent, not flagged) · Good: Numi organic · Ok: Harney & Sons green (scan Boycat)',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'1 cup brewed',nutr:{cal:2,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:2,fiber:0},nutrNote:'EGCG — heart health · metabolism',flags:['heart']},
+  {id:'sparklingWater',name:'Sparkling water',cat:'Beverages',qty:'12-pack',brand:'Spindrift (independent) or Trader Joe\'s store brand',where:'Trader Joe\'s, Whole Foods, MOM\'s Organic',patel:false,portion:'1 can (12oz)',nutr:{cal:0,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:5,fiber:0},nutrNote:'Zero sugar — good soda alternative'},
+  {id:'spray',name:'Cooking spray',cat:'Kitchen Supplies',qty:'1 can',brand:'Best: Chosen Foods avocado spray (not flagged) · Good: Primal Kitchen avocado spray · Ok: PAM olive oil (scan Boycat — ConAgra)',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'1 second spray',nutr:{cal:7,protein:0,carbs:0,sugar:0,fat:1,satfat:0,sodium:0,fiber:0}},
+  {id:'papertowels',name:'Paper towels',cat:'Kitchen Supplies',qty:'1 roll',brand:'Best: Who Gives A Crap (B Corp) · Good: Seventh Generation · Ok: Trader Joe\'s unbleached',where:'MOM\'s Organic, Whole Foods, Target',patel:false,portion:'—',nutr:{cal:0,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:0,fiber:0}},
+  {id:'ziplock',name:'Freezer bags (if needed)',cat:'Kitchen Supplies',qty:'1 box',brand:'If/as — compostable freezer bags',where:'MOM\'s Organic, Whole Foods',patel:false,portion:'—',nutr:{cal:0,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:0,fiber:0}},
+];
+
+// ═══════════════════════════════ DEFAULT RECIPES ═══════════════════════════════
+const DEFAULT_RECIPES=[
+  {
+    id:'keema',name:'Ground Turkey Keema',serves:4,defaultServes:4,
+    prep:'20 min',cook:'45 min',
+    tags:['batch','freezer-friendly','high-protein','Pakistani'],
+    ingredients:[
+      {qty:'1 lb',item:'Ground turkey'},
+      {qty:'1 large',item:'Vidalia onion, thinly sliced'},
+      {qty:'3 tbsp',item:'Olive oil'},
+      {qty:'1 tsp',item:'Ginger paste'},
+      {qty:'1 tsp',item:'Garlic paste'},
+      {qty:'1½',item:'Plum tomatoes, roughly chopped'},
+      {qty:'⅓ cup',item:'2% Greek yogurt'},
+      {qty:'1 cup',item:'Fresh cilantro, roughly chopped'},
+      {qty:'1 tsp',item:'Dhania (ground coriander)'},
+      {qty:'½ tsp',item:'Kashmiri mirch'},
+      {qty:'⅓ tsp',item:'Turmeric'},
+      {qty:'½ tsp',item:'Zeera (cumin)'},
+      {qty:'⅓ tsp',item:'Garam masala'},
+      {qty:'¾ tsp',item:'Salt'},
+    ],
+    steps:[
+      'Heat olive oil in a heavy-bottomed pan over medium heat. Add onions and cook, stirring occasionally, until deep golden — about 20 minutes. Don\'t rush this step.',
+      'Add ginger paste and garlic paste. Cook 2 minutes until fragrant.',
+      'Add all spices and salt. Stir to coat the onions and bloom the spices for 1 minute. <em>No Kashmiri mirch? Substitute ¼ tsp cayenne + ¼ tsp sweet paprika — cayenne is much hotter so use less, and paprika restores the mild color and body.</em>',
+      'Add ground turkey. Break into small crumbles and cook until no longer pink, about 8 minutes.',
+      'Add tomatoes. Cook on medium-low, stirring occasionally, for 15 minutes until oil separates (bhuna).',
+      'Stir in Greek yogurt one tablespoon at a time. Simmer 5 minutes.',
+      'Finish with fresh cilantro. Taste and adjust salt.',
+    ],
+    notes:'Freezes beautifully in Souper Cubes. Reheat with a splash of water. Serve over quinoa blend or with a simple salad.',
+    nutrPerServing:{cal:320,protein:28,carbs:8,sugar:4,fat:18,satfat:4,sodium:520,fiber:1},
+    cookUrl:'keema_recipe.html',
+  },
+  {
+    id:'frittatas',name:'Sage & Oregano Turkey Frittatas',serves:12,defaultServes:12,
+    prep:'15 min',cook:'20 min',
+    tags:['batch','breakfast','high-protein','freezer-friendly'],
+    ingredients:[
+      {qty:'½ lb',item:'Ground turkey'},
+      {qty:'3',item:'Large whole eggs'},
+      {qty:'⅔ cup',item:'Liquid egg whites'},
+      {qty:'⅓ cup',item:'Lactose-free 2% milk'},
+      {qty:'1 cup',item:'Fresh spinach, torn'},
+      {qty:'⅓ tsp',item:'Ground thyme'},
+      {qty:'⅓ tsp',item:'Ground sage'},
+      {qty:'small pinch',item:'Dried oregano'},
+      {qty:'⅛ tsp',item:'Crushed red pepper flakes'},
+      {qty:'½ tsp',item:'Salt'},
+      {qty:'½ tsp',item:'Black pepper'},
+    ],
+    steps:[
+      'Preheat oven to 350°F. Grease a 12-cup muffin tin or use silicone cups.',
+      'Mix turkey with thyme, sage, oregano, red pepper flakes, and half the salt and pepper.',
+      'Brown seasoned turkey in a skillet over medium heat, breaking into small crumbles. Add spinach in the last minute until just wilted. Remove from heat.',
+      'Whisk eggs, egg whites, milk, and remaining salt and pepper until fully combined.',
+      'Divide turkey-spinach mixture evenly among 12 muffin cups. Pour egg mixture over each, filling ¾ full.',
+      'Bake 17–20 minutes until centers are puffed and firm. They will deflate slightly as they cool — this is normal.',
+      'Cool completely on a rack before storing. Remove from silicone liners before storing to avoid sogginess.',
+    ],
+    notes:'Flash freeze on a baking sheet for 1 hour before transferring to a container. Reheat from frozen at 50% power for 60–90 seconds. Remove from silicone liners before storing.',
+    nutrPerServing:{cal:70,protein:9,carbs:1,sugar:0,fat:3,satfat:1,sodium:160,fiber:0},
+    cookUrl:'frittatas_recipe.html',
+  },
+  {
+    id:'salmonTray',name:'Sheet Pan Salmon & Broccolini',serves:2,defaultServes:2,
+    prep:'15 min',cook:'20 min',
+    tags:['quick','omega-3','heart-healthy'],
+    ingredients:[
+      {qty:'2 fillets',item:'Salmon fillets'},
+      {qty:'1 bunch',item:'Broccolini'},
+      {qty:'2–3 medium',item:'Potatoes, cubed'},
+      {qty:'2 tbsp',item:'Olive oil'},
+      {qty:'1',item:'Lemon, halved'},
+      {qty:'to taste',item:'Salt and black pepper'},
+    ],
+    steps:[
+      'Preheat oven to 425°F. Line a large sheet pan with parchment.',
+      'Toss potato cubes with 1 tbsp olive oil, salt, and pepper. Spread on pan. Roast 15 minutes.',
+      'Push potatoes to one side. Add broccolini and salmon to pan. Drizzle everything with remaining olive oil.',
+      'Season salmon with salt, pepper, and a squeeze of lemon. Place lemon halves cut-side down on pan.',
+      'Roast 12–15 minutes until salmon flakes easily and broccolini is tender with charred tips.',
+      'Squeeze roasted lemon over everything before serving.',
+    ],
+    notes:'Prep the tray Sunday evening — season and arrange everything, wrap tightly, refrigerate. Roast Monday with zero prep.',
+    nutrPerServing:{cal:520,protein:42,carbs:38,sugar:3,fat:20,satfat:3,sodium:320,fiber:5},
+    cookUrl:'salmon_recipe.html',
+  },
+  {
+    id:'quinoaBlend',name:'Quinoa & White Rice Blend',serves:6,defaultServes:6,
+    prep:'5 min',cook:'25 min',
+    tags:['batch','freezer-friendly','low-glycemic','carb-base'],
+    ingredients:[
+      {qty:'1 cup dry',item:'White quinoa, rinsed'},
+      {qty:'1 cup dry',item:'White rice, rinsed'},
+      {qty:'2½ cups',item:'Water or low-sodium broth'},
+      {qty:'½ tsp',item:'Salt'},
+    ],
+    steps:[
+      'Rinse quinoa thoroughly until water runs clear.',
+      'Combine quinoa, rice, water, and salt in a medium saucepan. Bring to a boil.',
+      'Reduce heat to low, cover, and simmer 18–20 minutes until liquid is absorbed.',
+      'Remove from heat. Let sit covered for 5 minutes, then fluff with a fork.',
+      'Cool completely before portioning into Souper Cubes and freezing.',
+    ],
+    notes:'Freeze in 1-cup Souper Cube portions. Reheat from frozen in microwave 90 seconds. Quinoa buffers the GI impact of white rice — a good balance of glycemic index and digestive comfort.',
+    nutrPerServing:{cal:240,protein:6,carbs:48,sugar:0,fat:2,satfat:0,sodium:100,fiber:3},
+    cookUrl:'quinoa_blend_recipe.html',
+  },
+  {
+    id:'plainQuinoa',name:'Plain Quinoa',serves:4,defaultServes:4,
+    prep:'5 min',cook:'20 min',
+    tags:['batch','freezer-friendly','low-glycemic','high-protein'],
+    ingredients:[
+      {qty:'1½ cups dry',item:'White quinoa, rinsed'},
+      {qty:'3 cups',item:'Water'},
+      {qty:'½ tsp',item:'Salt'},
+    ],
+    steps:[
+      'Rinse quinoa thoroughly until water runs clear to remove bitterness.',
+      'Combine quinoa, water, and salt. Bring to a boil.',
+      'Reduce heat to low, cover tightly, and simmer 15 minutes.',
+      'Remove from heat. Rest covered 5 minutes, then fluff with a fork.',
+      'Cool completely before freezing in Souper Cube portions.',
+    ],
+    notes:'Freeze in 1-cup portions. Pure low-glycemic base — use on days when you want to minimize carb load.',
+    nutrPerServing:{cal:222,protein:8,carbs:39,sugar:0,fat:3.5,satfat:0.5,sodium:130,fiber:5},
+    cookUrl:'plain_quinoa_recipe.html',
+  },
+  {
+    id:'saladDressing',name:'Apple Cider Vinaigrette',serves:8,defaultServes:8,
+    prep:'5 min',cook:'0 min',
+    tags:['quick','dressing','blood-sugar'],
+    ingredients:[
+      {qty:'3 tbsp',item:'Olive oil'},
+      {qty:'1 tbsp',item:'Apple cider vinegar'},
+      {qty:'1 tsp',item:'Dijon mustard'},
+      {qty:'1 tsp',item:'Raw honey'},
+      {qty:'pinch',item:'Salt'},
+    ],
+    steps:[
+      'Combine all ingredients in a small jar.',
+      'Seal and shake vigorously until emulsified.',
+      'Taste and adjust — more vinegar for tang, more honey for sweetness.',
+    ],
+    notes:'Keeps in the fridge for 2 weeks. Shake before each use. ACV has blood sugar regulation benefits.',
+    nutrPerServing:{cal:55,protein:0,carbs:1,sugar:1,fat:5,satfat:1,sodium:30,fiber:0},
+    cookUrl:'dressing_recipe.html',
+  },
+  {
+    id:'grainBowl',name:'Weeknight Grain Bowl',serves:2,defaultServes:2,
+    tags:['quick','flexible','meal-assembly'],
+    prep:'5 min',cook:'0 min',
+    ingredients:[
+      {qty:'1 cup',item:'Quinoa blend or plain quinoa (from freezer)'},
+      {qty:'½ cup',item:'Protein of choice (keema, salmon, chicken)'},
+      {qty:'2 cups',item:'Romaine or arugula'},
+      {qty:'½',item:'Avocado, sliced'},
+      {qty:'1 tbsp',item:'Apple cider vinaigrette'},
+      {qty:'optional',item:'Cherry tomatoes, cucumber'},
+    ],
+    steps:[
+      'Reheat grain from freezer — 90 seconds in microwave.',
+      'Reheat protein if needed.',
+      'Build bowl: grains at base, protein on one side, greens on the other.',
+      'Top with avocado, any fresh veg, and dressing.',
+    ],
+    notes:'This is an assembly template, not a strict recipe. Mix and match what you have from the week\'s batch.',
+    nutrPerServing:{cal:420,protein:28,carbs:38,sugar:3,fat:16,satfat:3,sodium:380,fiber:7},
+    cookUrl:'grain_bowl_recipe.html',
+  },
+  {
+    id:'stirFry',name:'Quick Stir-Fry',serves:2,defaultServes:2,
+    tags:['quick','versatile','weeknight'],
+    prep:'10 min',cook:'10 min',
+    ingredients:[
+      {qty:'6 oz',item:'Chicken breast or tofu, sliced thin'},
+      {qty:'2 cups',item:'Bok choy or broccoli, chopped'},
+      {qty:'1',item:'Bell pepper, sliced'},
+      {qty:'2 cloves',item:'Garlic, minced'},
+      {qty:'1 tsp',item:'Ginger paste'},
+      {qty:'1 tbsp',item:'Tamari'},
+      {qty:'1 tsp',item:'Avocado oil'},
+      {qty:'1 cup',item:'Quinoa blend (from freezer)'},
+    ],
+    steps:[
+      'Heat avocado oil in a wok or large skillet over high heat until shimmering.',
+      'Add protein. Cook undisturbed 2 minutes, then toss until cooked through. Remove from pan.',
+      'Add bok choy or broccoli to pan. Stir-fry 2 minutes.',
+      'Add bell pepper, garlic, and ginger. Toss 1 minute.',
+      'Return protein to pan. Add tamari and toss everything together 30 seconds.',
+      'Serve over reheated quinoa blend.',
+    ],
+    notes:'High heat is the secret. Don\'t overcrowd the pan or it steams instead of fries. Works with any protein and most vegetables.',
+    nutrPerServing:{cal:380,protein:34,carbs:32,sugar:4,fat:8,satfat:1,sodium:580,fiber:4},
+    cookUrl:'stir_fry_recipe.html',
+  },
+  {
+    id:'roastedVeg',name:'Sunday Roasted Vegetables',serves:4,defaultServes:4,
+    tags:['batch','sides','versatile','freezer-friendly'],
+    prep:'10 min',cook:'30 min',
+    ingredients:[
+      {qty:'2 cups',item:'Broccolini or broccoli florets'},
+      {qty:'1',item:'Bell pepper, chunked'},
+      {qty:'1 cup',item:'Sweet potato, cubed'},
+      {qty:'1 cup',item:'Cherry tomatoes'},
+      {qty:'2 tbsp',item:'Olive oil'},
+      {qty:'to taste',item:'Salt, pepper, and any dried herb'},
+    ],
+    steps:[
+      'Preheat oven to 425°F. Line two sheet pans with parchment.',
+      'Cut all vegetables into similar-sized pieces for even roasting.',
+      'Toss each vegetable separately with olive oil, salt, and pepper. Keep on separate sections of the pan — different veg have different roasting times.',
+      'Roast 25–30 minutes, tossing halfway, until edges are caramelized.',
+      'Cool completely before storing in the fridge or freezing.',
+    ],
+    notes:'Don\'t crowd the pan — spread in a single layer or they steam instead of roast. Roast whatever is in season or needs to be used up.',
+    nutrPerServing:{cal:130,protein:3,carbs:18,sugar:6,fat:7,satfat:1,sodium:160,fiber:4},
+    cookUrl:'roasted_veg_recipe.html',
+  },
+];
+
+// ═══════════════════════════════ STATE ═══════════════════════════════
+const SK={inv:'sb_inv_v3',weekly:'sb_weekly_v3',checked:'sb_checked_v3',customQty:'sb_cqty_v3',meals:'sb_meals_v3',history:'sb_hist_v3',day:'sb_day_v3',recipes:'sb_recipes_v4',recipeServes:'sb_rserves_v4'};
+function load(k){try{return JSON.parse(localStorage.getItem(k)||'null');}catch(e){return null;}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+
+let inventory=load(SK.inv)||JSON.parse(JSON.stringify(DEFAULT_INVENTORY));
+let weeklyIds=load(SK.weekly)||[];
+let checkedIds=load(SK.checked)||{};
+let customQty=load(SK.customQty)||{};
+let historyData=load(SK.history)||[];
+let recipes=load(SK.recipes)||JSON.parse(JSON.stringify(DEFAULT_RECIPES));
+let recipeServes=load(SK.recipeServes)||{};
+let recipeUrls=load('sb_rurls_v4')||{}; // recipeId -> current serving count override
+let editingId=null;
+let editingRecipeId=null;
+
+const now=new Date();
+const sunday=new Date(now);sunday.setDate(now.getDate()-now.getDay());
+document.getElementById('week-badge').textContent='Week of '+sunday.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+
+// ═══════════════════════════════ TABS ═══════════════════════════════
+function switchTab(tab,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  btn.classList.add('active');
+  if(tab==='weekly')renderWeekly();
+  if(tab==='recipes')renderRecipes();
+  if(tab==='inventory')renderInventory();
+  if(tab==='history'){saveHistory();renderHistory();}
+}
+
+// ═══════════════════════════════ WEEKLY LIST ═══════════════════════════════
+function getWeeklyItems(){return weeklyIds.map(id=>inventory.find(i=>i.id===id)).filter(Boolean);}
+
+function renderWeekly(){
+  const items=getWeeklyItems();
+  const cats=[...new Set(items.map(i=>i.cat))];
+  const cont=document.getElementById('weekly-list-sections');
+  if(items.length===0){cont.innerHTML='<div class="wl-empty">No items yet — tap "+ From recipes" to add a recipe\'s ingredients, or "+ From inventory" to add items manually.</div>';updateQuality([]);return;}
+  cont.innerHTML='';
+  cats.forEach(cat=>{
+    const catItems=items.filter(i=>i.cat===cat);
+    const sec=document.createElement('div');sec.className='section';
+    sec.innerHTML='<div class="section-title">'+cat+'</div>';
+    catItems.forEach(item=>{
+      const key=item.id;
+      const isChecked=!!checkedIds[key];
+      const currentQty=customQty[item.id]||item.qty||'';
+      const div=document.createElement('div');
+      div.className='gitem'+(isChecked?' checked':'');
+      div.dataset.key=key;
+      div.onclick=e=>{if(e.target.classList.contains('gi-remove')||e.target.classList.contains('qty-edit-btn')||e.target.classList.contains('qty-input'))return;toggleCheck(key);};
+      const patel=item.patel?'<span class="patel-tag">Patel Bros</span>':'';
+      const brand=item.brand?'<span class="gi-brand">→ '+item.brand+'</span>':'';
+      const where=item.where?'<span class="gi-where">📍 '+item.where+'</span>':'';
+      const pills=buildPills(item);
+      const nutrNote=item.nutrNote?'<span class="np gd">'+item.nutrNote+'</span>':'';
+      div.innerHTML=
+        '<div class="gchk"><svg class="chk-svg" width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3 5.5L8 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'+
+        '<div>'+
+          '<span class="gi-name">'+item.name+
+            '<span class="qty-inline">'+
+              '<span class="gi-qty" id="qty-display-'+item.id+'">'+currentQty+'</span>'+
+              '<button class="qty-edit-btn" onclick="startQtyEdit(event,\''+item.id+'\')">✎</button>'+
+            '</span>'+
+          patel+'</span>'+
+          brand+where+
+          '<div class="gi-nutr"><div class="npills">'+pills+nutrNote+'</div></div>'+
+        '</div>'+
+        '<button class="gi-remove" onclick="removeFromWeek(\''+item.id+'\')">✕</button>';
+      sec.appendChild(div);
+    });
+    cont.appendChild(sec);
+  });
+  updateQuality(items);
+}
+
+function startQtyEdit(e,id){
+  e.stopPropagation();
+  const display=document.getElementById('qty-display-'+id);if(!display)return;
+  const current=customQty[id]||(inventory.find(i=>i.id===id)||{}).qty||'';
+  const input=document.createElement('input');
+  input.className='qty-input';input.value=current;
+  input.onclick=ev=>ev.stopPropagation();
+  input.onkeydown=ev=>{if(ev.key==='Enter')saveQty(id,input.value);if(ev.key==='Escape')renderWeekly();};
+  input.onblur=()=>saveQty(id,input.value);
+  display.parentNode.replaceChild(input,display);
+  input.focus();input.select();
+}
+
+function saveQty(id,val){
+  const t=val.trim();if(t){customQty[id]=t;save(SK.customQty,customQty);}
+  renderWeekly();
+}
+
+function toggleCheck(key){
+  checkedIds[key]=!checkedIds[key];save(SK.checked,checkedIds);
+  const el=document.querySelector('[data-key="'+key+'"]');
+  if(el)el.classList.toggle('checked',checkedIds[key]);
+  updateQuality(getWeeklyItems());
+}
+
+function removeFromWeek(id){
+  weeklyIds=weeklyIds.filter(i=>i!==id);save(SK.weekly,weeklyIds);
+  renderWeekly();renderInventory();
+}
+
+function addToWeek(id,qtyOverride){
+  if(!weeklyIds.includes(id))weeklyIds.push(id);
+  if(qtyOverride){customQty[id]=qtyOverride;save(SK.customQty,customQty);}
+  save(SK.weekly,weeklyIds);
+}
+
+function resetWeek(){
+  if(!confirm('Start a new week? This saves current data to history and clears the list.'))return;
+  saveHistory();
+  checkedIds={};customQty={};
+  weeklyIds=[];
+  save(SK.checked,checkedIds);save(SK.customQty,customQty);save(SK.weekly,weeklyIds);
+  renderWeekly();
+}
+
+function buildPills(item){
+  if(!item||!item.nutr)return'';
+  const n=item.nutr;let h='';
+  if(n.cal)h+='<span class="np">'+n.cal+' kcal</span>';
+  if(n.protein>2)h+='<span class="np hi">'+n.protein+'g protein</span>';
+  if(n.carbs>5)h+='<span class="np">'+n.carbs+'g carbs</span>';
+  if(n.sugar>4)h+='<span class="np wn">'+n.sugar+'g sugar</span>';
+  if(n.fat>3)h+='<span class="np">'+n.fat+'g fat</span>';
+  if(n.satfat>2)h+='<span class="np wn">'+n.satfat+'g sat.fat</span>';
+  if(n.sodium>150)h+='<span class="np wn">'+n.sodium+'mg sodium</span>';
+  if(n.fiber>2)h+='<span class="np hi">'+n.fiber+'g fiber</span>';
+  return h;
+}
+
+function updateQuality(items){
+  const checked=items.filter(i=>checkedIds[i.id]);
+  const n=checked.length;const total=items.length;
+
+  // ── Signal counters ──
+  let completeProtein=0; // animal or complete plant proteins
+  let addedSugar=0;      // honey, maple syrup, processed items
+  let naturalSugar=0;    // fruit, yogurt — lower concern
+  let heart=0;           // lycopene, omega-3, olive oil, leafy greens
+  let fiberSources=new Set(); // track distinct fiber categories for diversity
+  let highSodiumItems=0;
+  let omega3=0;
+  let antiInflam=0;      // turmeric, ginger, garlic, olive oil, leafy greens
+  let satFatItems=0;
+  let microCats=new Set(); // distinct micronutrient-rich categories
+  let totalProteinScore=0;
+
+  const addedSugarIds=['honey','mapleSyrup'];
+  const completeProteinIds=['turkey','salmon','chickenbreast','chickenthigh','tuna','shrimp','eggwhites','eggs','kefir','yogurt'];
+  const highSodiumIds=['tamari','salt','shrimp','feta'];
+  const satFatIds=['feta','eggs'];
+  const antiInflamIds=['turmeric','ginger','garlic','spinach','kale','arugula','broccoli','broccolini','bokchoy','oliveoil','avocadooil','walnuts','salmon'];
+  const omega3Ids=['salmon','walnuts','tuna'];
+  const microRichIds=['spinach','kale','arugula','bokchoy','broccoli','broccolini','sweetpotato','bellpepper','avocado','cherries','tomatoes','cherryTomatoes','lentils','redlentils','chickpeas','frozenEdamame'];
+
+  checked.forEach(item=>{
+    const id=item.id;
+    if(completeProteinIds.includes(id))completeProtein++;
+    if(addedSugarIds.includes(id))addedSugar++;
+    if((item.flags||[]).includes('heart'))heart++;
+    if((item.flags||[]).includes('fiber'))fiberSources.add(item.cat+id);
+    if(highSodiumIds.includes(id))highSodiumItems++;
+    if(omega3Ids.includes(id))omega3++;
+    if(antiInflamIds.includes(id))antiInflam++;
+    if(satFatIds.includes(id))satFatItems++;
+    if(microRichIds.includes(id))microCats.add(id);
+    if((item.flags||[]).includes('protein'))totalProteinScore++;
+  });
+
+  // ── COMPLETE PROTEIN ──
+  // Good: 3+ complete protein sources (variety matters — different amino profiles)
+  const protLabel=completeProtein>=3?'✓ Varied sources':completeProtein>=2?'✓ Adequate':completeProtein===1?'~ Limited variety':n===0?'— Add items':'⚠ No complete protein';
+  const protCls=completeProtein>=2?'good':completeProtein>=1?'neutral':'warn';
+  setQ('protein',protCls,protLabel,Math.min(100,completeProtein*30));
+
+  // ── ADDED SUGAR ──
+  // Distinguishes added sugar (honey, syrup) from natural (fruit, yogurt)
+  const sugarLabel=n===0?'— Add items':addedSugar===0?'✓ No added sugar':addedSugar===1?'~ Small amount ('+['honey','maple syrup'].filter((_,i)=>addedSugarIds[i]&&checkedIds[addedSugarIds[i]]).join(', ')||'1 item'+')':'⚠ Multiple added sugars';
+  const sugarCls=addedSugar===0&&n>0?'good':addedSugar<=1?'neutral':'warn';
+  setQ('sugar',sugarCls,sugarLabel,Math.min(100,addedSugar*45));
+
+  // ── HEART HEALTH ──
+  // Looks for lycopene sources, omega-3s, olive oil, anti-inflammatory foods
+  const heartLabel=heart>=4?'✓ Strong profile':heart>=2?'~ Good start':heart>=1?'~ Some sources':n===0?'— Add items':'⚠ Limited';
+  setQ('heart',heart>=3?'good':heart>=1?'neutral':'neutral',heartLabel,Math.min(100,heart*22));
+
+  // ── FIBER DIVERSITY ──
+  // Diversity matters as much as quantity — different fibers feed different gut bacteria
+  const fDiv=fiberSources.size;
+  const fiberLabel=fDiv>=4?'✓ Diverse sources':fDiv>=2?'~ Some variety':fDiv>=1?'~ Limited':n===0?'— Add items':'⚠ Low fiber';
+  setQ('fiber',fDiv>=3?'good':fDiv>=1?'neutral':'neutral',fiberLabel,Math.min(100,fDiv*22));
+
+  // ── SODIUM RISK ──
+  // Flags concentrated sodium sources (processed, cured, condiments)
+  const sodLabel=n===0?'— Add items':highSodiumItems===0?'✓ Low risk':highSodiumItems===1?'~ Watch portions':highSodiumItems>=2?'⚠ Multiple high sources':'—';
+  setQ('sodium',highSodiumItems===0&&n>0?'good':highSodiumItems<=1?'neutral':'warn',sodLabel,Math.min(100,highSodiumItems*45));
+
+  // ── OMEGA-3 / ANTI-INFLAMMATORY ──
+  // Combines omega-3 sources with broader anti-inflammatory foods
+  const omLabel=omega3>=1&&antiInflam>=3?'✓ Strong':omega3>=1?'✓ Omega-3 present':antiInflam>=2?'~ Anti-inflam. only':n===0?'— Add items':'⚠ Low';
+  setQ('omega',omega3>=1?'good':antiInflam>=2?'neutral':'neutral',omLabel,Math.min(100,(omega3*40)+(antiInflam*8)));
+
+  // ── SATURATED FAT ──
+  // Checks for concentrated sat-fat sources — not inherently bad but worth tracking for heart health
+  const sfLabel=n===0?'— Add items':satFatItems===0?'✓ Very low':satFatItems===1?'✓ Moderate':satFatItems>=2?'~ Watch total':'—';
+  setQ('satfat',satFatItems<=1&&n>0?'good':'neutral',sfLabel,Math.min(100,satFatItems*45));
+
+  // ── MICRONUTRIENT VARIETY ──
+  // A proxy for "eating the rainbow" — distinct micronutrient-rich foods
+  const mDiv=microCats.size;
+  const mLabel=mDiv>=5?'✓ Excellent variety':mDiv>=3?'✓ Good range':mDiv>=2?'~ Some variety':mDiv>=1?'~ Limited':n===0?'— Add items':'⚠ Low variety';
+  setQ('micro',mDiv>=4?'good':mDiv>=2?'neutral':'neutral',mLabel,Math.min(100,mDiv*18));
+
+  document.getElementById('wl-summary').textContent=
+    n+' of '+total+' items checked'+
+    (n>0?' · '+completeProtein+' protein sources · '+(addedSugar===0?'no added sugar':addedSugar+' added sugar item'+(addedSugar>1?'s':''))+' · '+mDiv+' micronutrient-rich foods':'');
+
+  // Return scores for history
+  return{completeProtein,addedSugar,heart,fiberDiv:fDiv,highSodium:highSodiumItems,omega3,antiInflam,satFat:satFatItems,microDiv:mDiv,n,total};
+}
+
+function setQ(key,cls,text,pct){
+  const el=document.getElementById('q-'+key);const bar=document.getElementById('qb-'+key);
+  if(el){el.className='qstatus '+cls;el.textContent=text;}
+  if(bar)bar.style.width=pct+'%';
+}
+
+// ═══════════════════════════════ RECIPES ═══════════════════════════════
+function getRecipeServes(id,defaultServes){return recipeServes[id]||defaultServes;}
+
+function renderRecipes(){
+  const grid=document.getElementById('recipe-grid');grid.innerHTML='';
+  recipes.forEach(recipe=>{
+    const serves=getRecipeServes(recipe.id,recipe.defaultServes);
+    const ratio=serves/recipe.defaultServes;
+    const card=document.createElement('div');card.className='recipe-card';
+    const tags=recipe.tags.map(t=>'<span class="rc-tag">'+t+'</span>').join('');
+    const meta=[recipe.prep?'Prep '+recipe.prep:'',recipe.cook&&recipe.cook!=='0 min'?'Cook '+recipe.cook:''].filter(Boolean).join(' · ');
+    const ingrHtml=recipe.ingredients.map(ing=>'<li><span class="rc-ingr-name">'+ing.item+'</span><span class="rc-ingr-qty">'+ing.qty+'</span></li>').join('');
+    const nutrHtml=recipe.nutrPerServing?[
+      '<span class="np">'+recipe.nutrPerServing.cal+' kcal/serving</span>',
+      recipe.nutrPerServing.protein?'<span class="np hi">'+recipe.nutrPerServing.protein+'g protein</span>':'',
+      recipe.nutrPerServing.sugar>3?'<span class="np wn">'+recipe.nutrPerServing.sugar+'g sugar</span>':'',
+      recipe.nutrPerServing.fiber>2?'<span class="np gd">'+recipe.nutrPerServing.fiber+'g fiber</span>':'',
+    ].filter(Boolean).join(''):'';
+    const isAdded=recipe.ingredients.every(ing=>weeklyIds.includes(findInvId(ing.item)));
+    const cookUrl=recipe.cookUrl||recipeUrls[recipe.id]||null;
+    card.innerHTML=
+      '<div class="rc-header">'+
+        '<div class="rc-title">'+recipe.name+'</div>'+
+        (meta?'<div class="rc-meta">'+meta+' · '+recipe.defaultServes+' servings</div>':'')+
+        '<div class="rc-tags">'+tags+'</div>'+
+      '</div>'+
+      '<div class="rc-body">'+
+        '<div class="rc-section-label">Ingredients</div>'+
+        '<ul class="rc-ingr-list">'+ingrHtml+'</ul>'+
+        (nutrHtml?'<div class="rc-section-label">Nutrition per serving</div><div class="rc-nutr">'+nutrHtml+'</div>':'')+
+        '<button class="rc-expand-btn" id="expand-'+recipe.id+'" onclick="toggleSteps(\''+recipe.id+'\')">▸ Show steps</button>'+
+        '<div class="rc-detail" id="steps-'+recipe.id+'">'+
+          '<div class="rc-section-label" style="margin-top:0.5rem">Steps</div>'+
+          '<div class="rc-steps">'+recipe.steps.map((s,i)=>'<div class="rc-step"><span class="rc-step-num">'+(i+1)+'</span><span>'+s+'</span></div>').join('')+'</div>'+
+          (recipe.notes?'<div class="rc-section-label" style="margin-top:0.5rem">Notes</div><div style="font-size:12px;color:var(--muted);line-height:1.5">'+recipe.notes+'</div>':'')+
+        '</div>'+
+      '</div>'+
+      '<div class="rc-footer">'+
+        '<div class="rc-footer-top">'+
+          '<div class="serves-row">'+
+            'Servings:'+
+            '<button class="serves-btn" onclick="adjServes(event,\''+recipe.id+'\',-1)">−</button>'+
+            '<span class="serves-val" id="sv-'+recipe.id+'">'+serves+'</span>'+
+            '<button class="serves-btn" onclick="adjServes(event,\''+recipe.id+'\',1)">+</button>'+
+          '</div>'+
+          '<div class="rc-footer-btns">'+
+            '<button class="rc-expand-btn" onclick="editRecipe(\''+recipe.id+'\')">✎ Edit</button>'+
+            (cookUrl?'<a class="rc-cook-link" href="'+cookUrl+'" target="_blank">▶ Cook</a>':'')+
+            '<button class="rc-add-btn'+(isAdded?' added':'')+'" id="rc-add-'+recipe.id+'" onclick="addRecipeToWeek(\''+recipe.id+'\')">'+(isAdded?'✓ Added':'+ Add to week')+'</button>'+
+          '</div>'+
+        '</div>'+
+      '</div>';
+    grid.appendChild(card);
+  });
+}
+
+function toggleSteps(id){
+  const detail=document.getElementById('steps-'+id);
+  const btn=document.getElementById('expand-'+id);
+  if(!detail)return;
+  const open=detail.classList.toggle('open');
+  if(btn)btn.textContent=(open?'▾ Hide steps':'▸ Show steps');
+}
+
+function adjServes(e,id,delta){
+  e.stopPropagation();
+  const recipe=recipes.find(r=>r.id===id);if(!recipe)return;
+  const current=getRecipeServes(id,recipe.defaultServes);
+  const next=Math.max(1,current+delta);
+  recipeServes[id]=next;save(SK.recipeServes,recipeServes);
+  const sv=document.getElementById('sv-'+id);if(sv)sv.textContent=next;
+}
+
+function saveRecipeUrl(id){
+  const input=document.getElementById('url-'+id);if(!input)return;
+  const url=input.value.trim();
+  if(url)recipeUrls[id]=url;else delete recipeUrls[id];
+  save('sb_rurls_v4',recipeUrls);
+  renderRecipes();
+}
+
+function toggleUrlRow(id){
+  const row=document.getElementById('urlrow-'+id);
+  if(row)row.classList.toggle('open');
+}
+
+function findInvId(itemName){
+  const lower=itemName.toLowerCase().replace(/[,()]/g,'').split(' ')[0];
+  const found=inventory.find(i=>i.name.toLowerCase().includes(lower)||lower.includes(i.name.toLowerCase().split(' ')[0]));
+  return found?found.id:null;
+}
+
+function addRecipeToWeek(id){
+  const recipe=recipes.find(r=>r.id===id);if(!recipe)return;
+  const serves=getRecipeServes(id,recipe.defaultServes);
+  const ratio=serves/recipe.defaultServes;
+  let addedCount=0;let missingItems=[];
+  recipe.ingredients.forEach(ing=>{
+    const invId=findInvId(ing.item);
+    if(invId){
+      addToWeek(invId);
+      addedCount++;
+    } else {
+      missingItems.push(ing.item);
+    }
+  });
+  save(SK.weekly,weeklyIds);
+  let msg=addedCount+' ingredient'+(addedCount!==1?'s':'')+' added to your weekly list.';
+  if(missingItems.length>0)msg+='\n\nNot found in inventory (add manually if needed):\n'+missingItems.join('\n');
+  alert(msg);
+  renderWeekly();
+  renderRecipes();
+}
+
+function openRecipeModal(){
+  editingRecipeId=null;
+  document.getElementById('recipe-modal-title').textContent='Add recipe';
+  ['name','prep','cook','tags','ingredients','steps','notes'].forEach(f=>{const el=document.getElementById('rm-'+f);if(el)el.value='';});
+  document.getElementById('rm-serves').value='4';
+  document.getElementById('recipe-modal').classList.add('open');
+}
+
+function editRecipe(id){
+  const r=recipes.find(rec=>rec.id===id);if(!r)return;
+  editingRecipeId=id;
+  document.getElementById('recipe-modal-title').textContent='Edit recipe';
+  document.getElementById('rm-name').value=r.name||'';
+  document.getElementById('rm-serves').value=r.defaultServes||4;
+  document.getElementById('rm-prep').value=r.prep||'';
+  document.getElementById('rm-cook').value=r.cook||'';
+  document.getElementById('rm-tags').value=(r.tags||[]).join(', ');
+  document.getElementById('rm-ingredients').value=(r.ingredients||[]).map(i=>i.qty+' · '+i.item).join('\n');
+  document.getElementById('rm-steps').value=(r.steps||[]).join('\n');
+  document.getElementById('rm-notes').value=r.notes||'';
+  document.getElementById('recipe-modal').classList.add('open');
+}
+
+function closeRecipeModal(){document.getElementById('recipe-modal').classList.remove('open');editingRecipeId=null;}
+
+function saveRecipe(){
+  const name=document.getElementById('rm-name').value.trim();
+  if(!name){alert('Recipe name required.');return;}
+  const ingrRaw=document.getElementById('rm-ingredients').value.trim().split('\n').filter(Boolean);
+  const ingredients=ingrRaw.map(line=>{
+    const parts=line.split('·').map(s=>s.trim());
+    return parts.length>=2?{qty:parts[0],item:parts.slice(1).join(' · ')}:{qty:'',item:line};
+  });
+  const steps=document.getElementById('rm-steps').value.trim().split('\n').filter(Boolean);
+  const recipe={
+    id:editingRecipeId||'recipe_'+Date.now(),
+    name,
+    defaultServes:parseInt(document.getElementById('rm-serves').value)||4,
+    prep:document.getElementById('rm-prep').value.trim(),
+    cook:document.getElementById('rm-cook').value.trim(),
+    tags:document.getElementById('rm-tags').value.split(',').map(s=>s.trim()).filter(Boolean),
+    ingredients,steps,
+    notes:document.getElementById('rm-notes').value.trim(),
+    nutrPerServing:editingRecipeId?(recipes.find(r=>r.id===editingRecipeId)||{}).nutrPerServing:null,
+  };
+  if(editingRecipeId){const idx=recipes.findIndex(r=>r.id===editingRecipeId);if(idx>=0)recipes[idx]=recipe;}
+  else recipes.push(recipe);
+  save(SK.recipes,recipes);
+  closeRecipeModal();renderRecipes();
+}
+
+// ═══════════════════════════════ INVENTORY ═══════════════════════════════
+function renderInventory(){
+  const q=(document.getElementById('inv-search')||{}).value||'';
+  const cats=[...new Set(inventory.map(i=>i.cat))];
+  const cont=document.getElementById('inventory-sections');cont.innerHTML='';
+  cats.forEach(cat=>{
+    const catItems=inventory.filter(i=>i.cat===cat&&(!q||i.name.toLowerCase().includes(q.toLowerCase())||(i.brand||'').toLowerCase().includes(q.toLowerCase())||(i.where||'').toLowerCase().includes(q.toLowerCase())));
+    if(catItems.length===0)return;
+    const sec=document.createElement('div');sec.className='section';
+    sec.innerHTML='<div class="section-title">'+cat+' <span style="color:var(--muted);font-size:10px">'+catItems.length+'</span></div>';
+    catItems.forEach(item=>{
+      const inWeek=weeklyIds.includes(item.id);
+      const div=document.createElement('div');div.className='inv-item';
+      const patel=item.patel?'<span class="patel-tag" style="margin-left:4px">Patel Bros</span>':'';
+      div.innerHTML=
+        '<div>'+
+          '<div class="inv-name">'+item.name+patel+'</div>'+
+          '<div class="inv-meta">'+item.qty+(item.portion?' · default: '+item.portion:'')+'</div>'+
+          (item.brand?'<div class="inv-brand">→ '+item.brand+'</div>':'')+
+          (item.where?'<div class="inv-where">📍 '+item.where+'</div>':'')+
+        '</div>'+
+        '<div class="inv-actions">'+
+          '<button class="inv-add-btn'+(inWeek?' added':'')+'" onclick="'+(inWeek?'removeFromWeek':'addToWeekFromInv')+'(\''+item.id+'\')">'+(inWeek?'✓ Week':'+ Week')+'</button>'+
+          '<button class="inv-edit-btn" onclick="openEditModal(\''+item.id+'\')">✎</button>'+
+          '<button class="inv-del-btn" onclick="deleteItem(\''+item.id+'\')">✕</button>'+
+        '</div>';
+      sec.appendChild(div);
+    });
+    cont.appendChild(sec);
+  });
+}
+
+function addToWeekFromInv(id){addToWeek(id);save(SK.weekly,weeklyIds);renderInventory();renderWeekly();}
+
+function deleteItem(id){
+  if(!confirm('Remove from inventory permanently?'))return;
+  inventory=inventory.filter(i=>i.id!==id);weeklyIds=weeklyIds.filter(i=>i!==id);
+  save(SK.inv,inventory);save(SK.weekly,weeklyIds);renderInventory();renderWeekly();
+}
+
+function openAddModal(){
+  editingId=null;
+  document.getElementById('modal-title').textContent='Add item to inventory';
+  ['name','qty','brand','where','note','portion','cal','protein','carbs','sugar','fat','satfat','sodium','fiber','flags','nutrnote'].forEach(f=>{const el=document.getElementById('f-'+f);if(el)el.value='';});
+  document.getElementById('f-cat').value='Produce';
+  document.getElementById('f-patel').value='0';
+  document.getElementById('modal').classList.add('open');
+}
+
+function openEditModal(id){
+  const item=inventory.find(i=>i.id===id);if(!item)return;
+  editingId=id;
+  document.getElementById('modal-title').textContent='Edit item';
+  document.getElementById('f-name').value=item.name||'';
+  document.getElementById('f-cat').value=item.cat||'Produce';
+  document.getElementById('f-qty').value=item.qty||'';
+  document.getElementById('f-brand').value=item.brand||'';
+  document.getElementById('f-where').value=item.where||'';
+  document.getElementById('f-note').value=item.note||'';
+  document.getElementById('f-patel').value=item.patel?'1':'0';
+  document.getElementById('f-portion').value=item.portion||'';
+  const n=item.nutr||{};
+  ['cal','protein','carbs','sugar','fat','satfat','sodium','fiber'].forEach(f=>{document.getElementById('f-'+f).value=n[f]||'';});
+  document.getElementById('f-flags').value=(item.flags||[]).join(', ');
+  document.getElementById('f-nutrnote').value=item.nutrNote||'';
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal(){document.getElementById('modal').classList.remove('open');editingId=null;}
+
+function saveItem(){
+  const name=document.getElementById('f-name').value.trim();if(!name){alert('Item name required.');return;}
+  const g=f=>parseFloat(document.getElementById('f-'+f).value)||0;
+  const item={
+    id:editingId||'custom_'+Date.now(),
+    name,cat:document.getElementById('f-cat').value,
+    qty:document.getElementById('f-qty').value.trim(),
+    brand:document.getElementById('f-brand').value.trim(),
+    where:document.getElementById('f-where').value.trim(),
+    note:document.getElementById('f-note').value.trim(),
+    patel:document.getElementById('f-patel').value==='1',
+    portion:document.getElementById('f-portion').value.trim(),
+    nutr:{cal:g('cal'),protein:g('protein'),carbs:g('carbs'),sugar:g('sugar'),fat:g('fat'),satfat:g('satfat'),sodium:g('sodium'),fiber:g('fiber')},
+    flags:document.getElementById('f-flags').value.split(',').map(s=>s.trim()).filter(Boolean),
+    nutrNote:document.getElementById('f-nutrnote').value.trim(),
+  };
+  if(editingId){const idx=inventory.findIndex(i=>i.id===editingId);if(idx>=0)inventory[idx]=item;}
+  else inventory.push(item);
+  save(SK.inv,inventory);
+  closeModal();renderInventory();renderWeekly();
+}
+
+// ═══════════════════════════════ HISTORY ═══════════════════════════════
+function saveHistory(){
+  const weekLabel='Week of '+sunday.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const qualScores=updateQuality(getWeeklyItems());
+  const entry={weekOf:weekLabel,savedAt:new Date().toISOString(),checkedIds:{...checkedIds},weeklyIds:[...weeklyIds],quality:qualScores};
+  const idx=historyData.findIndex(w=>w.weekOf===weekLabel);
+  if(idx>=0)historyData[idx]=entry;else historyData.unshift(entry);
+  save(SK.history,historyData);
+}
+
+function renderHistory(){
+  const list=document.getElementById('history-list');
+  if(historyData.length===0){list.innerHTML='<div class="empty-state">No history yet — check off items during the week and come back here.</div>';return;}
+  list.innerHTML='';
+
+  // Trend summary if 2+ weeks
+  if(historyData.length>=2){
+    const trend=document.createElement('div');
+    trend.style.cssText='background:var(--card);border:1px solid var(--border);border-radius:4px;padding:1rem;margin-bottom:1rem;';
+    const weeks=historyData.slice(0,Math.min(6,historyData.length)).reverse();
+    const labels=weeks.map(w=>w.weekOf.replace('Week of ',''));
+    const signals=[
+      {key:'completeProtein',label:'Protein sources',good:3,max:5,color:'var(--sage)'},
+      {key:'addedSugar',label:'Added sugar items',good:0,max:3,color:'var(--gold)',invert:true},
+      {key:'heart',label:'Heart health foods',good:4,max:8,color:'var(--rust)'},
+      {key:'microDiv',label:'Micronutrient variety',good:4,max:8,color:'#6A8A4A'},
+      {key:'omega3',label:'Omega-3 sources',good:1,max:3,color:'var(--patel)'},
+    ];
+    let html='<div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Week-over-week trends (last '+weeks.length+' weeks)</div>';
+    signals.forEach(sig=>{
+      html+='<div style="margin-bottom:10px">';
+      html+='<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:3px"><span>'+sig.label+'</span></div>';
+      html+='<div style="display:flex;gap:4px;align-items:flex-end;">';
+      weeks.forEach((w,i)=>{
+        const val=(w.quality||{})[sig.key]||0;
+        const pct=Math.min(100,Math.round(val/sig.max*100));
+        const isGood=sig.invert?(val<=sig.good):(val>=sig.good);
+        const bg=isGood?sig.color:'var(--border)';
+        html+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">';
+        html+='<div style="font-size:9px;color:var(--muted)">'+val+'</div>';
+        html+='<div style="width:100%;height:'+Math.max(4,pct*0.4)+'px;background:'+bg+';border-radius:2px;transition:height 0.3s"></div>';
+        html+='<div style="font-size:8px;color:var(--muted);text-align:center;white-space:nowrap;overflow:hidden;max-width:40px">'+labels[i]+'</div>';
+        html+='</div>';
+      });
+      html+='</div></div>';
+    });
+    trend.innerHTML=html;
+    list.appendChild(trend);
+  }
+
+  historyData.forEach((week,wi)=>{
+    const grocCount=Object.values(week.checkedIds||{}).filter(Boolean).length;
+    const totalItems=(week.weeklyIds||[]).length;
+    const q=week.quality||{};
+    const div=document.createElement('div');div.className='hw';
+    const itemNames=(week.weeklyIds||[]).map(id=>{const item=inventory.find(i=>i.id===id);return item?item.name:'';}).filter(Boolean).join(', ');
+    const qSummary=q.n>0?[
+      q.completeProtein+'p sources',
+      q.addedSugar===0?'no added sugar':q.addedSugar+' added sugar',
+      q.omega3>=1?'omega-3 ✓':'no omega-3',
+      q.microDiv+' micro foods',
+    ].join(' · '):'';
+    div.innerHTML=
+      '<div class="hw-hdr" onclick="toggleHW('+wi+')">'+
+        '<span class="hw-title">'+week.weekOf+'</span>'+
+        '<span class="hw-meta">'+grocCount+'/'+totalItems+' checked'+(qSummary?' · '+qSummary:'')+'</span>'+
+      '</div>'+
+      '<div class="hw-body" id="hwb-'+wi+'">'+
+        '<div class="hw-week-items" style="margin-bottom:6px">'+itemNames+'</div>'+
+      '</div>';
+    list.appendChild(div);
+  });
+}
+
+function toggleHW(wi){document.getElementById('hwb-'+wi).classList.toggle('open');}
+
+function exportJSON(){
+  saveHistory();
+  const blob=new Blob([JSON.stringify({history:historyData,recipes},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sunday-batch-history.json';a.click();
+}
+
+function exportCSV(){
+  saveHistory();
+  let csv='Week,Items Checked,Items Total,Checked Item Names\n';
+  historyData.forEach(week=>{
+    const grocCount=Object.values(week.checkedIds||{}).filter(Boolean).length;
+    const totalItems=(week.weeklyIds||[]).length;
+    const checkedNames=Object.keys(week.checkedIds||{}).filter(id=>week.checkedIds[id]).map(id=>{const item=inventory.find(i=>i.id===id);return item?item.name:'';}).filter(Boolean).join('; ');
+    csv+=[week.weekOf,grocCount,totalItems,'"'+checkedNames+'"'].join(',')+'\n';
+  });
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sunday-batch-history.csv';a.click();
+}
+
+// ═══════════════════════════════ INIT ═══════════════════════════════
+renderWeekly();
+</script>
+</body>
+</html>

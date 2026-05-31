@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sunday Roasted Vegetables</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--bg:#EEF5E8;--warm:#FDFBF8;--accent:#4A7A2A;--accent-light:#D0EAC0;--accent-dark:#2A4A10;--ink:#081400;--ink-mid:#2A4820;--ink-light:#6A8860;--border:#B8D8A8;--done-bg:#EAF4E8;--done-border:#7AAB78;--done-text:#2F6B2A;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding-bottom:80px;}
+header{background:var(--accent-dark);color:#FDFBF8;padding:48px 40px 40px;position:relative;overflow:hidden;}
+header::before{content:'';position:absolute;top:-50px;right:-50px;width:240px;height:240px;border-radius:50%;background:var(--accent);opacity:0.28;}
+header::after{content:'';position:absolute;bottom:-30px;left:25%;width:120px;height:120px;border-radius:50%;background:var(--accent-light);opacity:0.12;}
+.hinner{max-width:720px;margin:0 auto;position:relative;z-index:1;}
+.hlabel{font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent-light);margin-bottom:12px;font-weight:500;}
+h1{font-family:'DM Serif Display',serif;font-size:clamp(28px,5vw,46px);line-height:1.1;margin-bottom:10px;}
+.hdesc{font-size:15px;color:var(--ink-light);margin-bottom:28px;font-style:italic;font-family:'DM Serif Display',serif;}
+.hmeta{display:flex;gap:24px;flex-wrap:wrap;font-size:13px;color:var(--ink-light);}
+.main{max-width:720px;margin:0 auto;padding:0 24px;}
+.controls{background:var(--warm);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin:28px 0;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.srv-ctrl{display:flex;align-items:center;gap:12px;}
+.srv-lbl{font-size:13px;color:var(--ink-mid);font-weight:500;}
+.srv-btn{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border);background:white;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink-mid);transition:all 0.15s;line-height:1;}
+.srv-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light);}
+.srv-num{font-size:22px;font-weight:500;min-width:28px;text-align:center;}
+.cook-btn{background:var(--accent);color:white;border:none;border-radius:8px;padding:11px 24px;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s;}
+.cook-btn:hover{background:var(--accent-dark);}.cook-btn.active{background:#5C5C5C;}
+.prog-wrap{display:none;margin-bottom:16px;}.prog-wrap.visible{display:block;}
+.prog-bar-bg{height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+.prog-bar{height:100%;background:var(--accent);border-radius:2px;transition:width 0.4s;}
+.prog-lbl{font-size:12px;color:var(--ink-light);margin-top:6px;}
+.sec-title{font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-light);font-weight:500;margin:32px 0 14px;}
+.ingr-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+@media(max-width:480px){.ingr-grid{grid-template-columns:1fr;}}
+.ingr{background:var(--warm);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+.ing-name{font-size:14px;flex:1;}.ing-amt{font-size:13px;font-weight:500;color:var(--accent);white-space:nowrap;}
+.steps-list{display:flex;flex-direction:column;gap:10px;}
+.step{background:var(--warm);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color 0.2s;}
+.step.current{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-light);}.step.done{background:var(--done-bg);border-color:var(--done-border);}
+.step-hdr{padding:14px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--ink);color:white;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.2s;}
+.step.current .step-num{background:var(--accent);}.step.done .step-num{background:var(--done-text);}
+.step-num-inner{display:block;}.check-icon{display:none;}.step.done .step-num-inner{display:none;}.step.done .check-icon{display:block;}
+.step-title{font-size:15px;font-weight:500;}.step.done .step-title{color:var(--done-text);}
+.step-badge{font-size:12px;color:var(--ink-light);margin-top:2px;}
+.step-body{padding:0 18px 16px 60px;font-size:14px;line-height:1.7;color:var(--ink-mid);display:none;}.step.open .step-body{display:block;}
+.timer-block{margin-top:14px;padding:12px 16px;background:white;border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.timer-disp{font-size:24px;font-weight:500;font-variant-numeric:tabular-nums;}.timer-disp.running{color:var(--accent);}.timer-disp.done{color:var(--done-text);}
+.timer-btns{display:flex;gap:8px;}
+.t-btn{font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 16px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:white;font-weight:500;}
+.t-btn.primary{background:var(--accent);color:white;border-color:var(--accent);}.t-btn.primary:hover{background:var(--accent-dark);}
+.done-btn{margin-top:14px;width:100%;padding:12px;background:var(--ink);color:white;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.done-btn:hover{background:#333;}
+.notes-box{background:var(--warm);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-top:32px;font-size:14px;line-height:1.7;color:var(--ink-mid);}
+</style>
+</head>
+<body>
+<header>
+  <div class="hinner">
+    <div class="hlabel">Batch Recipe · Sides</div>
+    <h1>Sunday Roasted Vegetables</h1>
+    <div class="hdesc">Caramelized edges, flexible vegetables — the foundation of every weeknight meal</div>
+    <div class="hmeta"><span>Prep 10 min</span><span>Roast 30 min</span><span id="serves-meta">4 servings</span></div>
+  </div>
+</header>
+<div class="main">
+  <div class="controls">
+    <div class="srv-ctrl"><span class="srv-lbl">Servings</span><button class="srv-btn" onclick="changeServings(-1)">−</button><span class="srv-num" id="srv">4</span><button class="srv-btn" onclick="changeServings(1)">+</button></div>
+    <button class="cook-btn" id="cook-btn" onclick="toggleCookMode()">Get Cooking →</button>
+  </div>
+  <div class="prog-wrap" id="prog-wrap"><div class="prog-bar-bg"><div class="prog-bar" id="prog-bar" style="width:0%"></div></div><div class="prog-lbl" id="prog-lbl">Step 0</div></div>
+  <div class="sec-title">Ingredients</div>
+  <div class="ingr-grid" id="ingr-grid"></div>
+  <div class="sec-title">Steps</div>
+  <div class="steps-list" id="steps-list"></div>
+  <div class="notes-box"><strong>What to roast:</strong> Use whatever needs to be used up. The technique stays the same — high heat, single layer, don't crowd. Almost anything edible becomes better roasted.<br><br><strong>Freezing:</strong> Roasted vegetables freeze reasonably well, though texture softens. Broccolini and sweet potato hold up best. Cherry tomatoes become sauce-like when frozen — useful for different purposes.</div>
+</div>
+<script>
+const steps=[
+  {title:'Preheat to 425°F',timer:null,body:'Preheat oven to 425°F (220°C). Line two sheet pans with parchment paper. You need two pans — if you crowd everything onto one, the vegetables will steam instead of roast. Space is the difference between caramelized and limp.'},
+  {title:'Cut for even roasting',timer:null,body:'Cut all vegetables into roughly similar-sized pieces. Sweet potato cubes should be about 1 inch. Broccolini can be left in larger pieces — it shrinks a lot. The goal is consistent size so everything finishes at the same time.'},
+  {title:'Season separately',timer:null,body:'Toss each vegetable type separately with olive oil, salt, pepper, and any dried herb. Denser vegetables (sweet potato) need slightly more oil than delicate ones (tomatoes). Keep them in separate sections on the pan — they have different roasting times.'},
+  {title:'Roast — do not stir for first 15 min',timer:900,body:'Roast for 15 minutes without touching anything. The contact between the vegetable and the hot pan is what creates the caramelization. Stirring too early breaks that contact before a crust can form.'},
+  {title:'Toss and finish',timer:900,body:'After 15 minutes, toss each section gently and swap pan positions if you have them on different racks. Roast another 10–15 minutes until edges are deeply caramelized and interiors are tender.'},
+  {title:'Cool completely before storing',timer:null,body:'Spread roasted vegetables in a single layer and cool completely before refrigerating or freezing. Hot vegetables in a closed container create steam, which makes them soggy. 20–30 minutes cooling makes a noticeable difference in texture over the week.'},
+];
+const BASE=4;let servings=4,cookMode=false,currentStep=0,timers={};
+const ingredients=[
+  {name:'Broccolini or broccoli florets',amt:2,unit:'cups',ps:0.5},
+  {name:'Bell pepper, chunked',amt:1,unit:'',ps:0.25},
+  {name:'Sweet potato, cubed',amt:1,unit:'cup',ps:0.25},
+  {name:'Cherry tomatoes',amt:1,unit:'cup',ps:0.25},
+  {name:'Olive oil',amt:2,unit:'tbsp',ps:0.5},
+  {name:'Salt',amt:0,unit:'to taste',ps:0},
+  {name:'Black pepper',amt:0,unit:'to taste',ps:0},
+  {name:'Dried herb of choice',amt:0,unit:'to taste',ps:0},
+];
+
+function fmtAmt(v){if(v===0)return'';if(v===Math.floor(v))return String(v);const fs=[[1/8,'⅛'],[1/4,'¼'],[1/3,'⅓'],[1/2,'½'],[2/3,'⅔'],[3/4,'¾']];const w=Math.floor(v),r=v-w;if(r<0.06)return w>0?String(w):'';for(const[fv,fs2]of fs){if(Math.abs(r-fv)<0.06)return(w>0?w+' ':'')+fs2;}return v.toFixed(1);}
+function fmtTime(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+function renderIngr(){document.getElementById('ingr-grid').innerHTML=ingredients.map(i=>{const scaled=i.ps*servings;const display=i.unit==='to taste'?'to taste':fmtAmt(scaled)+(i.unit?' '+i.unit:'');return'<div class="ingr"><span class="ing-name">'+i.name+'</span><span class="ing-amt">'+display+'</span></div>';}).join('');document.getElementById('serves-meta').textContent=servings+' servings';document.getElementById('srv').textContent=servings;}
+function renderSteps(){document.getElementById('steps-list').innerHTML=steps.map((s,i)=>{const isCur=cookMode&&i===currentStep,isDone=cookMode&&i<currentStep,isOpen=!cookMode||isCur;let cls='step'+(isCur?' current open':isDone?' done open':isOpen?' open':'');const timerHtml=s.timer&&(isCur||!cookMode)?'<div class="timer-block" id="tb-'+i+'"><span class="timer-disp" id="td-'+i+'">'+fmtTime(s.timer)+'</span><div class="timer-btns"><button class="t-btn primary" id="ts-'+i+'" onclick="toggleTimer('+i+','+s.timer+')">Start</button><button class="t-btn" onclick="resetTimer('+i+','+s.timer+')">Reset</button></div></div>':'';const doneHtml=cookMode&&isCur?'<button class="done-btn" onclick="markDone('+i+')">'+(i===steps.length-1?'✓ Finished!':'✓ Done — next step →')+'</button>':'';return'<div class="'+cls+'" id="step-'+i+'"><div class="step-hdr" onclick="toggleStep('+i+')"><div class="step-num"><span class="step-num-inner">'+(i+1)+'</span><span class="check-icon">✓</span></div><div><div class="step-title">'+s.title+'</div>'+(s.timer?'<div class="step-badge">'+Math.floor(s.timer/60)+' min</div>':'')+'</div></div><div class="step-body"><p>'+s.body+'</p>'+timerHtml+doneHtml+'</div></div>';}).join('');updateProg();}
+function toggleStep(i){if(cookMode)return;document.getElementById('step-'+i).classList.toggle('open');}
+function toggleCookMode(){cookMode=!cookMode;currentStep=0;const btn=document.getElementById('cook-btn');const pw=document.getElementById('prog-wrap');if(cookMode){btn.textContent='✕ Exit';btn.classList.add('active');pw.classList.add('visible');}else{btn.textContent='Get Cooking →';btn.classList.remove('active');pw.classList.remove('visible');Object.values(timers).forEach(t=>clearInterval(t.interval));timers={};}renderSteps();if(cookMode)scrollTo2(0);}
+function markDone(i){if(timers[i]){clearInterval(timers[i].interval);delete timers[i];}currentStep=i+1;renderSteps();if(currentStep<steps.length)scrollTo2(currentStep);}
+function scrollTo2(i){setTimeout(()=>{const el=document.getElementById('step-'+i);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},50);}
+function updateProg(){if(!cookMode)return;document.getElementById('prog-bar').style.width=(currentStep/steps.length*100)+'%';document.getElementById('prog-lbl').textContent='Step '+currentStep+' of '+steps.length;}
+function toggleTimer(i,total){if(!timers[i])timers[i]={remaining:total,interval:null,running:false};const t=timers[i];if(t.running){clearInterval(t.interval);t.running=false;document.getElementById('ts-'+i).textContent='Resume';}else{t.running=true;document.getElementById('ts-'+i).textContent='Pause';const d=document.getElementById('td-'+i);d.classList.add('running');t.interval=setInterval(()=>{t.remaining--;d.textContent=fmtTime(t.remaining);if(t.remaining<=0){clearInterval(t.interval);t.running=false;d.textContent='Done!';d.classList.remove('running');d.classList.add('done');document.getElementById('ts-'+i).textContent='Start';}},1000);}}
+function resetTimer(i,total){if(timers[i]){clearInterval(timers[i].interval);delete timers[i];}const d=document.getElementById('td-'+i);if(d){d.textContent=fmtTime(total);d.classList.remove('running','done');}const s=document.getElementById('ts-'+i);if(s)s.textContent='Start';}
+function changeServings(d){servings=Math.max(1,servings+d);renderIngr();}
+renderIngr();renderSteps();
+
+</script>
+</body>
+</html>

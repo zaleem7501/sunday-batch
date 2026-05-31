@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sheet Pan Salmon & Broccolini</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--bg:#EEF3F5;--warm:#F8FBFC;--accent:#2A6B8A;--accent-light:#C8E0EA;--accent-dark:#1A4A62;--ink:#101820;--ink-mid:#3A5060;--ink-light:#7A9AA8;--border:#C0D4DC;--done-bg:#EAF3F0;--done-border:#6AB4A0;--done-text:#2A6B5A;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding-bottom:80px;}
+header{background:var(--accent-dark);color:var(--warm);padding:48px 40px 40px;position:relative;overflow:hidden;}
+header::before{content:'';position:absolute;top:-50px;right:-50px;width:260px;height:260px;border-radius:50%;background:var(--accent);opacity:0.3;}
+header::after{content:'';position:absolute;bottom:-30px;left:20%;width:140px;height:140px;border-radius:50%;background:var(--accent-light);opacity:0.1;}
+.hinner{max-width:720px;margin:0 auto;position:relative;z-index:1;}
+.hlabel{font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent-light);margin-bottom:12px;font-weight:500;}
+h1{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,5.5vw,50px);font-weight:600;line-height:1.1;margin-bottom:10px;}
+.hdesc{font-size:15px;color:var(--ink-light);margin-bottom:28px;font-style:italic;font-family:'Cormorant Garamond',serif;}
+.hmeta{display:flex;gap:24px;flex-wrap:wrap;font-size:13px;color:#7A9AA8;}
+.main{max-width:720px;margin:0 auto;padding:0 24px;}
+.controls{background:var(--warm);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin:28px 0;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.srv-ctrl{display:flex;align-items:center;gap:12px;}
+.srv-lbl{font-size:13px;color:var(--ink-mid);font-weight:500;}
+.srv-btn{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border);background:white;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink-mid);transition:all 0.15s;line-height:1;}
+.srv-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light);}
+.srv-num{font-size:22px;font-weight:500;min-width:28px;text-align:center;}
+.cook-btn{background:var(--accent);color:white;border:none;border-radius:8px;padding:11px 24px;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s;}
+.cook-btn:hover{background:var(--accent-dark);}
+.cook-btn.active{background:#5C5C5C;}
+.prog-wrap{display:none;margin-bottom:16px;}
+.prog-wrap.visible{display:block;}
+.prog-bar-bg{height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+.prog-bar{height:100%;background:var(--accent);border-radius:2px;transition:width 0.4s;}
+.prog-lbl{font-size:12px;color:var(--ink-light);margin-top:6px;}
+.sec-title{font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-light);font-weight:500;margin:32px 0 14px;}
+.ingr-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+@media(max-width:480px){.ingr-grid{grid-template-columns:1fr;}}
+.ingr{background:var(--warm);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+.ing-name{font-size:14px;flex:1;}
+.ing-amt{font-size:13px;font-weight:500;color:var(--accent);white-space:nowrap;}
+.steps-list{display:flex;flex-direction:column;gap:10px;}
+.step{background:var(--warm);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color 0.2s;}
+.step.current{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-light);}
+.step.done{background:var(--done-bg);border-color:var(--done-border);}
+.step-hdr{padding:14px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--ink);color:white;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.2s;}
+.step.current .step-num{background:var(--accent);}
+.step.done .step-num{background:var(--done-text);}
+.step-num-inner{display:block;}.check-icon{display:none;}
+.step.done .step-num-inner{display:none;}.step.done .check-icon{display:block;}
+.step-title{font-size:15px;font-weight:500;}
+.step.done .step-title{color:var(--done-text);}
+.step-badge{font-size:12px;color:var(--ink-light);margin-top:2px;}
+.step-body{padding:0 18px 16px 60px;font-size:14px;line-height:1.7;color:var(--ink-mid);display:none;}
+.step.open .step-body{display:block;}
+.timer-block{margin-top:14px;padding:12px 16px;background:white;border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.timer-disp{font-size:24px;font-weight:500;font-variant-numeric:tabular-nums;}
+.timer-disp.running{color:var(--accent);}
+.timer-disp.done{color:var(--done-text);}
+.timer-btns{display:flex;gap:8px;}
+.t-btn{font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 16px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:white;font-weight:500;}
+.t-btn.primary{background:var(--accent);color:white;border-color:var(--accent);}
+.t-btn.primary:hover{background:var(--accent-dark);}
+.done-btn{margin-top:14px;width:100%;padding:12px;background:var(--ink);color:white;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.done-btn:hover{background:#333;}
+.notes-box{background:var(--warm);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-top:32px;font-size:14px;line-height:1.7;color:var(--ink-mid);}
+</style>
+</head>
+<body>
+<header>
+  <div class="hinner">
+    <div class="hlabel">Quick Recipe · Heart Health</div>
+    <h1>Sheet Pan Salmon<br>& Broccolini</h1>
+    <div class="hdesc">Omega-3 rich, one pan, ready in 35 minutes</div>
+    <div class="hmeta"><span>Prep 15 min</span><span>Roast 20 min</span><span id="serves-meta">2 servings</span></div>
+  </div>
+</header>
+<div class="main">
+  <div class="controls">
+    <div class="srv-ctrl">
+      <span class="srv-lbl">Servings</span>
+      <button class="srv-btn" onclick="changeServings(-1)">−</button>
+      <span class="srv-num" id="srv">2</span>
+      <button class="srv-btn" onclick="changeServings(1)">+</button>
+    </div>
+    <button class="cook-btn" id="cook-btn" onclick="toggleCookMode()">Get Cooking →</button>
+  </div>
+  <div class="prog-wrap" id="prog-wrap"><div class="prog-bar-bg"><div class="prog-bar" id="prog-bar" style="width:0%"></div></div><div class="prog-lbl" id="prog-lbl">Step 0 of 6</div></div>
+  <div class="sec-title">Ingredients</div>
+  <div class="ingr-grid" id="ingr-grid"></div>
+  <div class="sec-title">Steps</div>
+  <div class="steps-list" id="steps-list"></div>
+  <div class="notes-box"><strong>Sunday prep tip:</strong> Season and arrange everything on the pan Sunday evening, wrap tightly with plastic wrap, and refrigerate. Monday dinner is 35 minutes hands-off.</div>
+</div>
+<script>
+const BASE=2;let servings=2,cookMode=false,currentStep=0,timers={};
+const ingredients=[
+  {name:'Salmon fillets',amt:2,unit:'fillets',ps:1},
+  {name:'Broccolini',amt:1,unit:'bunch',ps:0.5},
+  {name:'Potatoes, cubed',amt:2,unit:'medium',ps:1},
+  {name:'Olive oil',amt:2,unit:'tbsp',ps:1},
+  {name:'Lemon',amt:1,unit:'',ps:0.5},
+  {name:'Salt',amt:0,unit:'to taste',ps:0},
+  {name:'Black pepper',amt:0,unit:'to taste',ps:0},
+];
+const steps=[
+  {title:'Preheat to 425°F',timer:null,body:'Preheat oven to 425°F (220°C). Line a large sheet pan with parchment paper. High heat is what creates caramelized edges — don\'t go lower.'},
+  {title:'Start the potatoes',timer:900,body:'Toss potato cubes with 1 tbsp olive oil, salt, and pepper. Spread on one side of the pan in a single layer — don\'t crowd them. Roast 15 minutes while you prep everything else.'},
+  {title:'Prep salmon and broccolini',timer:null,body:'While potatoes roast: pat salmon dry with paper towel (dry surface = better sear). Trim any thick broccolini stems. Slice lemon in half.'},
+  {title:'Add to pan',timer:null,body:'Pull the pan out. Push potatoes to one side. Add broccolini and salmon fillets. Drizzle everything with remaining olive oil. Season salmon generously with salt and pepper. Place lemon halves cut-side down on the pan.'},
+  {title:'Roast to finish',timer:780,body:'Return to oven for 12–15 minutes. Salmon is done when it flakes easily with a fork and the center is opaque. Broccolini should have charred tips. Don\'t overcook — salmon dries out fast past the flaking point.'},
+  {title:'Finish and serve',timer:null,body:'Squeeze the roasted lemon halves over everything before serving. Roasted lemon is sweeter and less sharp than fresh — use it all. Serve immediately.'},
+];
+function fmtAmt(v){if(v===0)return'';if(v===Math.floor(v))return String(v);const fs=[[1/2,'½'],[1/4,'¼'],[3/4,'¾']];const w=Math.floor(v),r=v-w;if(r<0.06)return w>0?String(w):'';for(const[fv,fs2]of fs){if(Math.abs(r-fv)<0.06)return(w>0?w+' ':'')+fs2;}return v.toFixed(1);}
+function fmtTime(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+function renderIngr(){document.getElementById('ingr-grid').innerHTML=ingredients.map(i=>{const scaled=i.ps*servings;const display=i.unit==='to taste'?'to taste':fmtAmt(scaled)+(i.unit?' '+i.unit:'');return'<div class="ingr"><span class="ing-name">'+i.name+'</span><span class="ing-amt">'+display+'</span></div>';}).join('');document.getElementById('serves-meta').textContent=servings+' servings';document.getElementById('srv').textContent=servings;}
+function renderSteps(){document.getElementById('steps-list').innerHTML=steps.map((s,i)=>{const isCur=cookMode&&i===currentStep,isDone=cookMode&&i<currentStep,isOpen=!cookMode||isCur;let cls='step'+(isCur?' current open':isDone?' done open':isOpen?' open':'');const timerHtml=s.timer&&(isCur||!cookMode)?'<div class="timer-block" id="tb-'+i+'"><span class="timer-disp" id="td-'+i+'">'+fmtTime(s.timer)+'</span><div class="timer-btns"><button class="t-btn primary" id="ts-'+i+'" onclick="toggleTimer('+i+','+s.timer+')">Start</button><button class="t-btn" onclick="resetTimer('+i+','+s.timer+')">Reset</button></div></div>':'';const doneHtml=cookMode&&isCur?'<button class="done-btn" onclick="markDone('+i+')">'+(i===steps.length-1?'✓ Finished!':'✓ Done — next step →')+'</button>':'';return'<div class="'+cls+'" id="step-'+i+'"><div class="step-hdr" onclick="toggleStep('+i+')"><div class="step-num" id="sn-'+i+'"><span class="step-num-inner">'+(i+1)+'</span><span class="check-icon">✓</span></div><div><div class="step-title">'+s.title+'</div>'+(s.timer?'<div class="step-badge">'+Math.floor(s.timer/60)+' min</div>':'')+'</div></div><div class="step-body"><p>'+s.body+'</p>'+timerHtml+doneHtml+'</div></div>';}).join('');updateProg();}
+function toggleStep(i){if(cookMode)return;document.getElementById('step-'+i).classList.toggle('open');}
+function toggleCookMode(){cookMode=!cookMode;currentStep=0;const btn=document.getElementById('cook-btn');const pw=document.getElementById('prog-wrap');if(cookMode){btn.textContent='✕ Exit';btn.classList.add('active');pw.classList.add('visible');}else{btn.textContent='Get Cooking →';btn.classList.remove('active');pw.classList.remove('visible');Object.values(timers).forEach(t=>clearInterval(t.interval));timers={};}renderSteps();if(cookMode)scrollTo2(0);}
+function markDone(i){if(timers[i]){clearInterval(timers[i].interval);delete timers[i];}currentStep=i+1;renderSteps();if(currentStep<steps.length)scrollTo2(currentStep);}
+function scrollTo2(i){setTimeout(()=>{const el=document.getElementById('step-'+i);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},50);}
+function updateProg(){if(!cookMode)return;document.getElementById('prog-bar').style.width=(currentStep/steps.length*100)+'%';document.getElementById('prog-lbl').textContent='Step '+currentStep+' of '+steps.length;}
+function toggleTimer(i,total){if(!timers[i])timers[i]={remaining:total,interval:null,running:false};const t=timers[i];if(t.running){clearInterval(t.interval);t.running=false;document.getElementById('ts-'+i).textContent='Resume';}else{t.running=true;document.getElementById('ts-'+i).textContent='Pause';const d=document.getElementById('td-'+i);d.classList.add('running');t.interval=setInterval(()=>{t.remaining--;d.textContent=fmtTime(t.remaining);if(t.remaining<=0){clearInterval(t.interval);t.running=false;d.textContent='Done!';d.classList.remove('running');d.classList.add('done');document.getElementById('ts-'+i).textContent='Start';}},1000);}}
+function resetTimer(i,total){if(timers[i]){clearInterval(timers[i].interval);delete timers[i];}const d=document.getElementById('td-'+i);if(d){d.textContent=fmtTime(total);d.classList.remove('running','done');}const s=document.getElementById('ts-'+i);if(s)s.textContent='Start';}
+function changeServings(d){servings=Math.max(1,servings+d);renderIngr();}
+renderIngr();renderSteps();
+</script>
+</body>
+</html>
