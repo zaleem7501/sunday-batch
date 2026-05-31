@@ -686,6 +686,7 @@ function initFirebase(){
   } catch(e) {
     console.warn('Firebase init failed, using local fallback:', e);
     loadSharedFromLocal();
+    renderWeekly();
   }
 }
 
@@ -694,7 +695,6 @@ function loadSharedFromLocal(){
   checkedIds=JSON.parse(localStorage.getItem('sb_shared_checked')||'{}');
   customQty=JSON.parse(localStorage.getItem('sb_shared_qty')||'{}');
   recipeContribs=JSON.parse(localStorage.getItem('sb_shared_contribs')||'{}');
-  renderWeekly();
 }
 
 function saveSharedToLocal(data){
@@ -707,25 +707,38 @@ function saveSharedToLocal(data){
 function startSync(){
   if(!db) return;
   setSyncStatus('connecting');
+  // First load from local cache immediately so UI isn't blank
+  loadSharedFromLocal();
   syncUnsubscribe = db.collection('shared').doc(SHARED_DOC)
     .onSnapshot(doc=>{
       setSyncStatus('live');
       if(doc.exists){
         const data=doc.data();
-        weeklyIds=data.weeklyIds||[];
-        checkedIds=data.checkedIds||{};
-        customQty=data.customQty||{};
-        recipeContribs=data.recipeContribs||{};
-        saveSharedToLocal(data);
+        // Only update if Firebase has actual content
+        // (don't let an empty Firebase doc wipe a populated local state)
+        const firebaseHasData=(data.weeklyIds&&data.weeklyIds.length>0)||
+                               (data.checkedIds&&Object.keys(data.checkedIds).length>0);
+        const localHasData=weeklyIds.length>0||Object.keys(checkedIds).length>0;
+        if(firebaseHasData){
+          weeklyIds=data.weeklyIds||[];
+          checkedIds=data.checkedIds||{};
+          customQty=data.customQty||{};
+          recipeContribs=data.recipeContribs||{};
+          saveSharedToLocal(data);
+        } else if(localHasData){
+          // Local has data but Firebase is empty — push local up
+          pushToFirebase();
+          return;
+        }
       } else {
-        // First time — push current local state
-        pushToFirebase();
+        // Document doesn't exist yet — push local state up
+        const localHasData=weeklyIds.length>0||Object.keys(checkedIds).length>0;
+        if(localHasData) pushToFirebase();
       }
       if(!isSyncing) renderWeekly();
     }, err=>{
       console.warn('Sync error:', err);
       setSyncStatus('offline');
-      loadSharedFromLocal();
       renderWeekly();
     });
 }
