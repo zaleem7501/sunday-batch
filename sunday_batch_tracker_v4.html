@@ -743,7 +743,7 @@ function startSync(){
 }
 
 function pushToFirebase(){
-  if(!db || !syncReady) { saveSharedToLocal(); return; }
+  if(!db){ saveSharedToLocal(); return; }
   const hasData = weeklyIds.length>0 || Object.keys(checkedIds).length>0 || Object.keys(customQty).length>0;
   if(!hasData){ saveSharedToLocal(); return; }
   isSyncing = true;
@@ -753,7 +753,7 @@ function pushToFirebase(){
   console.log('📤 Pushing to Firebase. weeklyIds length:', weeklyIds.length);
   db.collection('shared').doc(SHARED_DOC).set(data)
     .then(()=>{ isSyncing=false; saveSharedToLocal(); console.log('✅ Push successful'); })
-    .catch(err=>{ console.warn('Push failed:', err); isSyncing=false; });
+    .catch(err=>{ console.warn('❌ Push failed:', err); isSyncing=false; });
 }
 
 // Legacy save() calls route shared state to Firebase
