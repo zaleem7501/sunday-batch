@@ -708,6 +708,7 @@ function startSync(){
     .onSnapshot({includeMetadataChanges: false}, doc=>{
       setSyncStatus('live');
       syncReady = true;
+      console.log('📥 Firebase snapshot received. doc.exists:', doc.exists);
       if(doc.exists){
         const data = doc.data();
         const fbWeekly = data.weeklyIds||[];
@@ -716,20 +717,25 @@ function startSync(){
         const fbContribs = data.recipeContribs||{};
         const fbUpdated = data.updatedAt||'';
         const localUpdated = localStorage.getItem('sb_local_updated')||'';
-        // Firebase is authoritative if it has data OR is newer than local
+        console.log('📊 Firebase weeklyIds length:', fbWeekly.length, '| local weeklyIds length:', weeklyIds.length);
+        console.log('🕐 Firebase updatedAt:', fbUpdated, '| local updatedAt:', localUpdated);
         const fbHasData = fbWeekly.length>0 || Object.keys(fbChecked).length>0;
         const fbIsNewer = fbUpdated > localUpdated;
+        console.log('fbHasData:', fbHasData, '| fbIsNewer:', fbIsNewer);
         if(fbHasData || fbIsNewer){
+          console.log('✅ Loading from Firebase');
           weeklyIds = fbWeekly;
           checkedIds = fbChecked;
           customQty = fbQty;
           recipeContribs = fbContribs;
           saveSharedToLocal();
           renderWeekly();
+        } else {
+          console.log('⏭ Keeping local data (Firebase empty or older)');
         }
-        // else: local is newer or both empty — keep local, don't overwrite
+      } else {
+        console.log('📭 No Firebase document exists yet');
       }
-      // doc doesn't exist — keep whatever local has
     }, err=>{
       console.warn('Sync error:', err);
       setSyncStatus('offline');
@@ -744,8 +750,9 @@ function pushToFirebase(){
   const now = new Date().toISOString();
   localStorage.setItem('sb_local_updated', now);
   const data = {weeklyIds:[...weeklyIds], checkedIds:{...checkedIds}, customQty:{...customQty}, recipeContribs:{...recipeContribs}, updatedAt:now};
+  console.log('📤 Pushing to Firebase. weeklyIds length:', weeklyIds.length);
   db.collection('shared').doc(SHARED_DOC).set(data)
-    .then(()=>{ isSyncing=false; saveSharedToLocal(); })
+    .then(()=>{ isSyncing=false; saveSharedToLocal(); console.log('✅ Push successful'); })
     .catch(err=>{ console.warn('Push failed:', err); isSyncing=false; });
 }
 
