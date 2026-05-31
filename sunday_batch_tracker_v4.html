@@ -667,9 +667,10 @@ const SHARED_DOC = 'sunday-batch-shared';
 let db = null;
 let isSyncing = false;
 let syncReady = false;
+let pendingPush = false; // queues a push if Firebase isn't ready yet
 
 function initFirebase(){
-  // Show local data immediately while Firebase connects
+  // Show local data immediately
   loadSharedFromLocal();
   renderWeekly();
   try {
@@ -679,7 +680,6 @@ function initFirebase(){
     }
     if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     db = firebase.firestore();
-    // NO offline persistence — causes stale cache issues
     setSyncStatus('connecting');
     startSync();
   } catch(e){
@@ -717,11 +717,10 @@ function startSync(){
         const fbContribs = data.recipeContribs||{};
         const fbUpdated = data.updatedAt||'';
         const localUpdated = localStorage.getItem('sb_local_updated')||'';
-        console.log('📊 Firebase weeklyIds length:', fbWeekly.length, '| local weeklyIds length:', weeklyIds.length);
-        console.log('🕐 Firebase updatedAt:', fbUpdated, '| local updatedAt:', localUpdated);
+        console.log('📊 Firebase weeklyIds:', fbWeekly.length, '| local weeklyIds:', weeklyIds.length);
+        console.log('🕐 Firebase updated:', fbUpdated, '| local updated:', localUpdated);
         const fbHasData = fbWeekly.length>0 || Object.keys(fbChecked).length>0;
         const fbIsNewer = fbUpdated > localUpdated;
-        console.log('fbHasData:', fbHasData, '| fbIsNewer:', fbIsNewer);
         if(fbHasData || fbIsNewer){
           console.log('✅ Loading from Firebase');
           weeklyIds = fbWeekly;
@@ -731,10 +730,16 @@ function startSync(){
           saveSharedToLocal();
           renderWeekly();
         } else {
-          console.log('⏭ Keeping local data (Firebase empty or older)');
+          console.log('⏭ Keeping local data');
         }
       } else {
         console.log('📭 No Firebase document exists yet');
+      }
+      // Flush any pending push that happened before sync was ready
+      if(pendingPush){
+        pendingPush = false;
+        console.log('🔄 Flushing pending push...');
+        pushToFirebase();
       }
     }, err=>{
       console.warn('Sync error:', err);
@@ -743,7 +748,12 @@ function startSync(){
 }
 
 function pushToFirebase(){
-  if(!db){ saveSharedToLocal(); return; }
+  if(!db || !syncReady){
+    console.log('⏳ Firebase not ready yet — queuing push');
+    pendingPush = true;
+    saveSharedToLocal();
+    return;
+  }
   const hasData = weeklyIds.length>0 || Object.keys(checkedIds).length>0 || Object.keys(customQty).length>0;
   if(!hasData){ saveSharedToLocal(); return; }
   isSyncing = true;
