@@ -772,31 +772,17 @@ function buildPills(item){
   return h;
 }
 
-function updateQuality(items){
+function calcQualityScores(items){
   const checked=items.filter(i=>checkedIds[i.id]);
   const n=checked.length;const total=items.length;
-
-  // ── Signal counters ──
-  let completeProtein=0; // animal or complete plant proteins
-  let addedSugar=0;      // honey, maple syrup, processed items
-  let naturalSugar=0;    // fruit, yogurt — lower concern
-  let heart=0;           // lycopene, omega-3, olive oil, leafy greens
-  let fiberSources=new Set(); // track distinct fiber categories for diversity
-  let highSodiumItems=0;
-  let omega3=0;
-  let antiInflam=0;      // turmeric, ginger, garlic, olive oil, leafy greens
-  let satFatItems=0;
-  let microCats=new Set(); // distinct micronutrient-rich categories
-  let totalProteinScore=0;
-
-  const addedSugarIds=['honey','mapleSyrup'];
+  let completeProtein=0,addedSugar=0,heart=0,fiberSources=new Set(),highSodiumItems=0,omega3=0,antiInflam=0,satFatItems=0,microCats=new Set();
   const completeProteinIds=['turkey','salmon','chickenbreast','chickenthigh','tuna','shrimp','eggwhites','eggs','kefir','yogurt'];
+  const addedSugarIds=['honey','mapleSyrup'];
   const highSodiumIds=['tamari','salt','shrimp','feta'];
   const satFatIds=['feta','eggs'];
   const antiInflamIds=['turmeric','ginger','garlic','spinach','kale','arugula','broccoli','broccolini','bokchoy','oliveoil','avocadooil','walnuts','salmon'];
   const omega3Ids=['salmon','walnuts','tuna'];
   const microRichIds=['spinach','kale','arugula','bokchoy','broccoli','broccolini','sweetpotato','bellpepper','avocado','cherries','tomatoes','cherryTomatoes','lentils','redlentils','chickpeas','frozenEdamame'];
-
   checked.forEach(item=>{
     const id=item.id;
     if(completeProteinIds.includes(id))completeProtein++;
@@ -808,59 +794,35 @@ function updateQuality(items){
     if(antiInflamIds.includes(id))antiInflam++;
     if(satFatIds.includes(id))satFatItems++;
     if(microRichIds.includes(id))microCats.add(id);
-    if((item.flags||[]).includes('protein'))totalProteinScore++;
   });
+  return{completeProtein,addedSugar,heart,fiberDiv:fiberSources.size,highSodium:highSodiumItems,omega3,antiInflam,satFat:satFatItems,microDiv:microCats.size,n,total};
+}
 
-  // ── COMPLETE PROTEIN ──
-  // Good: 3+ complete protein sources (variety matters — different amino profiles)
+function updateQuality(items){
+  const s=calcQualityScores(items);
+  const{completeProtein,addedSugar,heart,fiberDiv:fDiv,highSodium:highSodiumItems,omega3,antiInflam,satFat:satFatItems,microDiv:mDiv,n,total}=s;
+
   const protLabel=completeProtein>=3?'✓ Varied sources':completeProtein>=2?'✓ Adequate':completeProtein===1?'~ Limited variety':n===0?'— Add items':'⚠ No complete protein';
-  const protCls=completeProtein>=2?'good':completeProtein>=1?'neutral':'warn';
-  setQ('protein',protCls,protLabel,Math.min(100,completeProtein*30));
-
-  // ── ADDED SUGAR ──
-  // Distinguishes added sugar (honey, syrup) from natural (fruit, yogurt)
-  const sugarLabel=n===0?'— Add items':addedSugar===0?'✓ No added sugar':addedSugar===1?'~ Small amount ('+['honey','maple syrup'].filter((_,i)=>addedSugarIds[i]&&checkedIds[addedSugarIds[i]]).join(', ')||'1 item'+')':'⚠ Multiple added sugars';
-  const sugarCls=addedSugar===0&&n>0?'good':addedSugar<=1?'neutral':'warn';
-  setQ('sugar',sugarCls,sugarLabel,Math.min(100,addedSugar*45));
-
-  // ── HEART HEALTH ──
-  // Looks for lycopene sources, omega-3s, olive oil, anti-inflammatory foods
+  setQ('protein',completeProtein>=2?'good':completeProtein>=1?'neutral':'warn',protLabel,Math.min(100,completeProtein*30));
+  const sugarLabel=n===0?'— Add items':addedSugar===0?'✓ No added sugar':addedSugar===1?'~ Small amount':'⚠ Multiple added sugars';
+  setQ('sugar',addedSugar===0&&n>0?'good':addedSugar<=1?'neutral':'warn',sugarLabel,Math.min(100,addedSugar*45));
   const heartLabel=heart>=4?'✓ Strong profile':heart>=2?'~ Good start':heart>=1?'~ Some sources':n===0?'— Add items':'⚠ Limited';
   setQ('heart',heart>=3?'good':heart>=1?'neutral':'neutral',heartLabel,Math.min(100,heart*22));
-
-  // ── FIBER DIVERSITY ──
-  // Diversity matters as much as quantity — different fibers feed different gut bacteria
-  const fDiv=fiberSources.size;
   const fiberLabel=fDiv>=4?'✓ Diverse sources':fDiv>=2?'~ Some variety':fDiv>=1?'~ Limited':n===0?'— Add items':'⚠ Low fiber';
   setQ('fiber',fDiv>=3?'good':fDiv>=1?'neutral':'neutral',fiberLabel,Math.min(100,fDiv*22));
-
-  // ── SODIUM RISK ──
-  // Flags concentrated sodium sources (processed, cured, condiments)
-  const sodLabel=n===0?'— Add items':highSodiumItems===0?'✓ Low risk':highSodiumItems===1?'~ Watch portions':highSodiumItems>=2?'⚠ Multiple high sources':'—';
+  const sodLabel=n===0?'— Add items':highSodiumItems===0?'✓ Low risk':highSodiumItems===1?'~ Watch portions':'⚠ Multiple high sources';
   setQ('sodium',highSodiumItems===0&&n>0?'good':highSodiumItems<=1?'neutral':'warn',sodLabel,Math.min(100,highSodiumItems*45));
-
-  // ── OMEGA-3 / ANTI-INFLAMMATORY ──
-  // Combines omega-3 sources with broader anti-inflammatory foods
   const omLabel=omega3>=1&&antiInflam>=3?'✓ Strong':omega3>=1?'✓ Omega-3 present':antiInflam>=2?'~ Anti-inflam. only':n===0?'— Add items':'⚠ Low';
   setQ('omega',omega3>=1?'good':antiInflam>=2?'neutral':'neutral',omLabel,Math.min(100,(omega3*40)+(antiInflam*8)));
-
-  // ── SATURATED FAT ──
-  // Checks for concentrated sat-fat sources — not inherently bad but worth tracking for heart health
-  const sfLabel=n===0?'— Add items':satFatItems===0?'✓ Very low':satFatItems===1?'✓ Moderate':satFatItems>=2?'~ Watch total':'—';
+  const sfLabel=n===0?'— Add items':satFatItems===0?'✓ Very low':satFatItems===1?'✓ Moderate':'~ Watch total';
   setQ('satfat',satFatItems<=1&&n>0?'good':'neutral',sfLabel,Math.min(100,satFatItems*45));
-
-  // ── MICRONUTRIENT VARIETY ──
-  // A proxy for "eating the rainbow" — distinct micronutrient-rich foods
-  const mDiv=microCats.size;
   const mLabel=mDiv>=5?'✓ Excellent variety':mDiv>=3?'✓ Good range':mDiv>=2?'~ Some variety':mDiv>=1?'~ Limited':n===0?'— Add items':'⚠ Low variety';
   setQ('micro',mDiv>=4?'good':mDiv>=2?'neutral':'neutral',mLabel,Math.min(100,mDiv*18));
 
-  document.getElementById('wl-summary').textContent=
-    n+' of '+total+' items checked'+
-    (n>0?' · '+completeProtein+' protein sources · '+(addedSugar===0?'no added sugar':addedSugar+' added sugar item'+(addedSugar>1?'s':''))+' · '+mDiv+' micronutrient-rich foods':'');
+  const summary=document.getElementById('wl-summary');
+  if(summary)summary.textContent=n+' of '+total+' items checked'+(n>0?' · '+completeProtein+' protein sources · '+(addedSugar===0?'no added sugar':addedSugar+' added sugar item'+(addedSugar>1?'s':''))+' · '+mDiv+' micronutrient-rich foods':'');
 
-  // Return scores for history
-  return{completeProtein,addedSugar,heart,fiberDiv:fDiv,highSodium:highSodiumItems,omega3,antiInflam,satFat:satFatItems,microDiv:mDiv,n,total};
+  return s;
 }
 
 function setQ(key,cls,text,pct){
@@ -1068,6 +1030,8 @@ function removeRecipeFromWeek(id){
   save(SK.weekly,weeklyIds);save(SK.customQty,customQty);save(SK.recipeContribs,recipeContribs);
   renderWeekly();renderRecipes();
 }
+
+function openRecipeModal(){
   editingRecipeId=null;
   document.getElementById('recipe-modal-title').textContent='Add recipe';
   ['name','prep','cook','tags','ingredients','steps','notes'].forEach(f=>{const el=document.getElementById('rm-'+f);if(el)el.value='';});
@@ -1236,7 +1200,7 @@ function saveItem(){
 // ═══════════════════════════════ HISTORY ═══════════════════════════════
 function saveHistory(){
   const weekLabel='Week of '+sunday.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-  const qualScores=updateQuality(getWeeklyItems());
+  const qualScores=calcQualityScores(getWeeklyItems());
   const entry={weekOf:weekLabel,savedAt:new Date().toISOString(),checkedIds:{...checkedIds},weeklyIds:[...weeklyIds],quality:qualScores};
   const idx=historyData.findIndex(w=>w.weekOf===weekLabel);
   if(idx>=0)historyData[idx]=entry;else historyData.unshift(entry);
