@@ -887,7 +887,8 @@ function renderRecipes(){
       recipe.nutrPerServing.sugar>3?'<span class="np wn">'+recipe.nutrPerServing.sugar+'g sugar</span>':'',
       recipe.nutrPerServing.fiber>2?'<span class="np gd">'+recipe.nutrPerServing.fiber+'g fiber</span>':'',
     ].filter(Boolean).join(''):'';
-    const isAdded=recipe.ingredients.every(ing=>weeklyIds.includes(findInvId(ing.item)));
+    const mappableIngredients=recipe.ingredients.map(ing=>findInvId(ing.item)).filter(Boolean);
+    const isAdded=mappableIngredients.length>0&&mappableIngredients.every(invId=>weeklyIds.includes(invId));
     const cookUrl=recipe.cookUrl||recipeUrls[recipe.id]||null;
     card.innerHTML=
       '<div class="rc-header">'+
