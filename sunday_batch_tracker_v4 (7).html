@@ -132,6 +132,7 @@ header::after{content:'';position:absolute;bottom:-25px;left:38%;width:100px;hei
 .rc-add-btn{font-family:'DM Mono',monospace;font-size:10px;padding:5px 12px;border-radius:2px;border:0.5px solid var(--sage);color:var(--sage);background:none;cursor:pointer;white-space:nowrap;letter-spacing:0.04em;}
 .rc-add-btn:hover{background:var(--sage);color:white;}
 .rc-add-btn.added{background:var(--sage);color:white;}
+.rc-add-btn.added:hover{background:var(--rust);border-color:var(--rust);}
 .rc-expand-btn{font-size:10px;color:var(--muted);background:none;border:none;cursor:pointer;padding:3px 6px;text-transform:uppercase;letter-spacing:0.06em;}
 .rc-expand-btn:hover{color:var(--ink);}
 .rc-cook-link{font-family:'DM Mono',monospace;font-size:10px;padding:5px 12px;border-radius:2px;border:0.5px solid var(--gold);color:var(--gold);background:none;cursor:pointer;white-space:nowrap;letter-spacing:0.04em;text-decoration:none;display:inline-block;}
@@ -916,7 +917,10 @@ function renderRecipes(){
           '<div class="rc-footer-btns">'+
             '<button class="rc-expand-btn" onclick="editRecipe(\''+recipe.id+'\')">✎ Edit</button>'+
             (cookUrl?'<a class="rc-cook-link" href="'+cookUrl+'" target="_blank">▶ Cook</a>':'')+
-            '<button class="rc-add-btn'+(isAdded?' added':'')+'" id="rc-add-'+recipe.id+'" onclick="addRecipeToWeek(\''+recipe.id+'\')">'+(isAdded?'✓ Added':'+ Add to week')+'</button>'+
+            (isAdded
+              ? '<button class="rc-add-btn added" onclick="removeRecipeFromWeek(\''+recipe.id+'\')">✕ Remove</button>'
+              : '<button class="rc-add-btn" id="rc-add-'+recipe.id+'" onclick="addRecipeToWeek(\''+recipe.id+'\')">+ Add to week</button>'
+            )+
           '</div>'+
         '</div>'+
       '</div>';
@@ -1037,7 +1041,32 @@ function addRecipeToWeek(id){
   renderRecipes();
 }
 
-function openRecipeModal(){
+function removeRecipeFromWeek(id){
+  const recipe=recipes.find(r=>r.id===id);if(!recipe)return;
+  let removedCount=0;
+  recipe.ingredients.forEach(ing=>{
+    const invId=findInvId(ing.item);if(!invId)return;
+    // Only remove if this recipe is the sole contributor
+    const contribs=recipeContribs[invId]||[];
+    const filtered=contribs.filter(c=>c.recipeId!==id);
+    if(filtered.length===0){
+      // No other recipe needs this — remove from list
+      weeklyIds=weeklyIds.filter(i=>i!==invId);
+      delete customQty[invId];
+      delete recipeContribs[invId];
+      removedCount++;
+    } else {
+      // Other recipes still need it — keep but update attribution and revert qty
+      recipeContribs[invId]=filtered;
+      // Revert qty to what remaining contributors need
+      if(filtered.length===1){customQty[invId]=filtered[0].qty||'';}
+      save(SK.recipeContribs,recipeContribs);
+      save(SK.customQty,customQty);
+    }
+  });
+  save(SK.weekly,weeklyIds);save(SK.customQty,customQty);save(SK.recipeContribs,recipeContribs);
+  renderWeekly();renderRecipes();
+}
   editingRecipeId=null;
   document.getElementById('recipe-modal-title').textContent='Add recipe';
   ['name','prep','cook','tags','ingredients','steps','notes'].forEach(f=>{const el=document.getElementById('rm-'+f);if(el)el.value='';});
