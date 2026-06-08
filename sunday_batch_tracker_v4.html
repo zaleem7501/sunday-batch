@@ -403,10 +403,40 @@ const DEFAULT_INVENTORY=[
   {id:'pumpkinSeeds',name:'Pumpkin seeds (pepitas)',cat:'Snacks',qty:'1 bag',brand:'NOW Foods or bulk bins at MOM\'s',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'2 tbsp',nutr:{cal:90,protein:5,carbs:3,sugar:0,fat:8,satfat:1.5,sodium:5,fiber:1},nutrNote:'Magnesium · zinc · healthy fats'},
   {id:'ricecracker',name:'Brown rice crackers',cat:'Snacks',qty:'1 bag',brand:'Lundberg or Edward & Sons',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'10 crackers',nutr:{cal:120,protein:2,carbs:24,sugar:0,fat:2,satfat:0,sodium:120,fiber:1},nutrNote:'Gluten-free · light snack option'},
   {id:'greenTea',name:'Green tea',cat:'Beverages',qty:'1 box (20 bags)',brand:'Best: Rishi organic (independent, not flagged) · Good: Numi organic · Ok: Harney & Sons green (scan Boycat)',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'1 cup brewed',nutr:{cal:2,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:2,fiber:0},nutrNote:'EGCG — heart health · metabolism',flags:['heart']},
-  {id:'sparklingWater',name:'Sparkling water',cat:'Beverages',qty:'12-pack',brand:'Spindrift (independent) or Trader Joe\'s store brand',where:'Trader Joe\'s, Whole Foods, MOM\'s Organic',patel:false,portion:'1 can (12oz)',nutr:{cal:0,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:5,fiber:0},nutrNote:'Zero sugar — good soda alternative'},
+  {id:'sparklingWater',name:'Sparkling water',cat:'Beverages',qty:'1 case (12-pack)',brand:'Best: Spindrift (independent, real fruit juice) · Good: Trader Joe\'s store brand · Ok: Bubly (scan Boycat — PepsiCo)',where:'Trader Joe\'s, Whole Foods, MOM\'s Organic, Target',patel:false,portion:'1 can (12oz)',nutr:{cal:2,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:5,fiber:0},nutrNote:'Zero added sugar — good soda alternative'},
   {id:'spray',name:'Cooking spray',cat:'Kitchen Supplies',qty:'1 can',brand:'Best: Chosen Foods avocado spray (not flagged) · Good: Primal Kitchen avocado spray · Ok: PAM olive oil (scan Boycat — ConAgra)',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'1 second spray',nutr:{cal:7,protein:0,carbs:0,sugar:0,fat:1,satfat:0,sodium:0,fiber:0}},
   {id:'papertowels',name:'Paper towels',cat:'Kitchen Supplies',qty:'1 roll',brand:'Best: Who Gives A Crap (B Corp) · Good: Seventh Generation · Ok: Trader Joe\'s unbleached',where:'MOM\'s Organic, Whole Foods, Target',patel:false,portion:'—',nutr:{cal:0,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:0,fiber:0}},
   {id:'ziplock',name:'Freezer bags (if needed)',cat:'Kitchen Supplies',qty:'1 box',brand:'If/as — compostable freezer bags',where:'MOM\'s Organic, Whole Foods',patel:false,portion:'—',nutr:{cal:0,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:0,fiber:0}},
+  // ── ADDITIONAL PRODUCE ──
+  {id:'greenChili',name:'Green chilis (serrano or Thai)',cat:'Produce',qty:'3–4',brand:'Fresh preferred',where:'Patel Brothers, H Mart, MOM\'s Organic, any grocery',patel:true,portion:'1 chili',nutr:{cal:4,protein:0,carbs:1,sugar:0,fat:0,satfat:0,sodium:0,fiber:0},nutrNote:'Capsaicin · vitamin C · essential for Pakistani cooking'},
+  {id:'lime',name:'Limes',cat:'Produce',qty:'3',brand:'Organic preferred',where:'MOM\'s Organic, any grocery',patel:false,portion:'1 lime (juice)',nutr:{cal:11,protein:0,carbs:4,sugar:1,fat:0,satfat:0,sodium:1,fiber:0},nutrNote:'Vitamin C · brightens dishes'},
+  {id:'mango',name:'Mango',cat:'Produce',qty:'2',brand:'Organic preferred — Ataulfo/honey mango preferred',where:'MOM\'s Organic, H Mart, Patel Brothers, Whole Foods',patel:false,portion:'½ mango',nutr:{cal:100,protein:1,carbs:25,sugar:23,fat:0,satfat:0,sodium:2,fiber:3},nutrNote:'High natural sugar — watch quantity · vitamin C · A'},
+  {id:'blueberries',name:'Blueberries (fresh or frozen)',cat:'Produce',qty:'1 pint',brand:'Organic preferred',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'½ cup',nutr:{cal:42,protein:1,carbs:11,sugar:7,fat:0,satfat:0,sodium:1,fiber:2},nutrNote:'Anthocyanins — brain and heart health',flags:['heart','fiber']},
+  {id:'mushroomsBtn',name:'Button or cremini mushrooms',cat:'Produce',qty:'8 oz',brand:'Organic preferred',where:'MOM\'s Organic, Whole Foods, Harris Teeter',patel:false,portion:'1 cup sliced',nutr:{cal:15,protein:2,carbs:2,sugar:1,fat:0,satfat:0,sodium:4,fiber:1},nutrNote:'Umami depth · B vitamins · immune support'},
+  {id:'celery',name:'Celery',cat:'Produce',qty:'1 bunch',brand:'Organic preferred',where:'MOM\'s Organic, any grocery',patel:false,portion:'2 stalks',nutr:{cal:10,protein:0,carbs:2,sugar:1,fat:0,satfat:0,sodium:80,fiber:1},nutrNote:'Very low cal · natural sodium'},
+  {id:'scallions',name:'Scallions (green onions)',cat:'Produce',qty:'1 bunch',brand:'Organic preferred',where:'MOM\'s Organic, H Mart, any grocery',patel:false,portion:'2 stalks',nutr:{cal:5,protein:0,carbs:1,sugar:0,fat:0,satfat:0,sodium:2,fiber:0},nutrNote:'Mild onion flavor · garnish'},
+  {id:'mintFresh',name:'Fresh mint',cat:'Produce',qty:'1 bunch',brand:'Organic preferred',where:'MOM\'s Organic, Patel Brothers, any grocery',patel:false,portion:'2 tbsp',nutr:{cal:2,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:1,fiber:0},nutrNote:'Digestive · pairs with Pakistani dishes'},
+  // ── PROTEINS ──
+  {id:'groundBeef',name:'Ground beef (90% lean)',cat:'Protein',qty:'1 lb',brand:'Best: local grass-fed (check farmers markets) · Good: Whole Foods 365 organic · Ok: any organic 90% lean',where:'MOM\'s Organic, Whole Foods, Harris Teeter, Eastern Market',patel:false,portion:'1 cup cooked',nutr:{cal:310,protein:30,carbs:0,sugar:0,fat:20,satfat:7,sodium:95,fiber:0},nutrNote:'Higher fat than turkey — use occasionally',flags:['protein']},
+  {id:'sardines',name:'Sardines (canned)',cat:'Protein',qty:'2 cans',brand:'Best: Wild Planet (independent) · Good: Crown Prince · Ok: Season brand',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'1 can (3.75oz)',nutr:{cal:190,protein:23,carbs:0,sugar:0,fat:11,satfat:1.5,sodium:340,fiber:0},nutrNote:'Highest omega-3 per serving · sustainable · no mercury',flags:['protein','omega','heart']},
+  {id:'cottageCheese',name:'Cottage cheese (2%)',cat:'Dairy & Refrigerated',qty:'16 oz',brand:'Best: Good Culture (live cultures) · Good: Nancy\'s organic · Ok: Trader Joe\'s',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'½ cup',nutr:{cal:90,protein:12,carbs:5,sugar:4,fat:2.5,satfat:1.5,sodium:360,fiber:0},nutrNote:'High protein · probiotic if live cultures · versatile',flags:['protein']},
+  // ── GRAINS ──
+  {id:'buckwheat',name:'Buckwheat groats',cat:'Grains & Dry Goods',qty:'1 cup dry',brand:'Bob\'s Red Mill organic',where:'MOM\'s Organic, Whole Foods',patel:false,portion:'½ cup cooked',nutr:{cal:150,protein:6,carbs:31,sugar:0,fat:1,satfat:0,sodium:0,fiber:4},nutrNote:'Gluten-free · complete protein · very low glycemic',flags:['protein','fiber']},
+  {id:'millet',name:'Millet',cat:'Grains & Dry Goods',qty:'1 cup dry',brand:'Bob\'s Red Mill or bulk at MOM\'s',where:'MOM\'s Organic, Whole Foods',patel:false,portion:'½ cup cooked',nutr:{cal:104,protein:3,carbs:21,sugar:0,fat:1,satfat:0,sodium:2,fiber:1},nutrNote:'Alkaline · easy to digest · mild flavor'},
+  // ── PANTRY ──
+  {id:'coconutMilk',name:'Coconut milk (lite)',cat:'Spices & Condiments',qty:'1 can (13.5oz)',brand:'Best: Native Forest organic (BPA-free can) · Good: Trader Joe\'s lite · Ok: any organic lite',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s, H Mart',patel:false,portion:'¼ cup',nutr:{cal:45,protein:0,carbs:2,sugar:1,fat:4,satfat:3.5,sodium:25,fiber:0},nutrNote:'Watch sat fat — use lite version'},
+  {id:'chickpeaFlour',name:'Chickpea flour (besan)',cat:'Spices & Condiments',qty:'1 lb bag',brand:'Bob\'s Red Mill or Patel Brothers bulk',where:'Patel Brothers (best price), MOM\'s Organic, Whole Foods',patel:true,portion:'¼ cup',nutr:{cal:110,protein:6,carbs:16,sugar:3,fat:2,satfat:0,sodium:10,fiber:3},nutrNote:'High protein · used in Pakistani cooking · gluten-free'},
+  {id:'driedMango',name:'Amchur (dried mango powder)',cat:'Spices & Condiments',qty:'1 jar',brand:'MDH or Swad brand',where:'Patel Brothers, India Bazaar',patel:true,portion:'½ tsp',nutr:{cal:5,protein:0,carbs:1,sugar:0,fat:0,satfat:0,sodium:0,fiber:0},nutrNote:'Sour flavor agent — used in chutneys and marinades'},
+  {id:'paprika',name:'Sweet paprika',cat:'Spices & Condiments',qty:'1 jar',brand:'Best: Frontier Co-op · Good: Simply Organic · Ok: any pure sweet paprika',where:'MOM\'s Organic, Whole Foods, any grocery',patel:false,portion:'½ tsp',nutr:{cal:3,protein:0,carbs:1,sugar:0,fat:0,satfat:0,sodium:1,fiber:0},nutrNote:'Sub for Kashmiri mirch along with cayenne'},
+  {id:'chiliFlakes',name:'Whole dried red chilis',cat:'Spices & Condiments',qty:'1 bag',brand:'Patel Brothers bulk preferred',where:'Patel Brothers, H Mart, MOM\'s Organic',patel:true,portion:'1–2 chilis',nutr:{cal:6,protein:0,carbs:1,sugar:0,fat:0,satfat:0,sodium:1,fiber:0},nutrNote:'Used whole in tarka/tempering'},
+  {id:'mustardSeeds',name:'Mustard seeds (black)',cat:'Spices & Condiments',qty:'1 jar',brand:'Frontier Co-op or Patel Brothers bulk',where:'Patel Brothers, MOM\'s Organic',patel:true,portion:'½ tsp',nutr:{cal:5,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:0,fiber:0},nutrNote:'Tarka/tempering — essential for South Asian cooking'},
+  {id:'ghee',name:'Ghee',cat:'Spices & Condiments',qty:'1 jar',brand:'Best: 4th & Heart grass-fed · Good: Ancient Organics · Ok: any grass-fed ghee',where:'MOM\'s Organic, Whole Foods, Patel Brothers',patel:false,portion:'1 tsp',nutr:{cal:45,protein:0,carbs:0,sugar:0,fat:5,satfat:3,sodium:0,fiber:0},nutrNote:'High smoke point · rich flavor · use in small amounts'},
+  // ── FROZEN ──
+  {id:'frozenSpinach',name:'Frozen spinach',cat:'Frozen',qty:'1 bag (10oz)',brand:'Cascadian Farm organic',where:'MOM\'s Organic, Trader Joe\'s, Whole Foods',patel:false,portion:'½ cup cooked',nutr:{cal:25,protein:3,carbs:4,sugar:0,fat:0,satfat:0,sodium:95,fiber:2},nutrNote:'Iron · folate · vitamin K — convenient backup',flags:['fiber','heart']},
+  {id:'frozenMango',name:'Frozen mango chunks',cat:'Frozen',qty:'1 bag (16oz)',brand:'Trader Joe\'s or Cascadian Farm',where:'Trader Joe\'s, Whole Foods, MOM\'s Organic',patel:false,portion:'½ cup',nutr:{cal:70,protein:1,carbs:18,sugar:16,fat:0,satfat:0,sodium:0,fiber:2},nutrNote:'Watch sugar — natural but high · smoothies and snacks'},
+  // ── BEVERAGES ──
+  {id:'kombuchaGT',name:'Kombucha',cat:'Beverages',qty:'4-pack',brand:'Best: GT\'s Living Foods (independent) · Good: Health-Ade · Ok: store brand',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'1 bottle (16oz)',nutr:{cal:30,protein:0,carbs:8,sugar:4,fat:0,satfat:0,sodium:10,fiber:0},nutrNote:'Probiotic · digestive health · moderate sugar'},
+  {id:'herbalTea',name:'Herbal tea',cat:'Beverages',qty:'1 box',brand:'Best: Rishi Tea · Good: Numi organic · Ok: Celestial Seasonings',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'1 cup brewed',nutr:{cal:2,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:2,fiber:0},nutrNote:'Caffeine-free · relaxing'},
 ];
 
 // ═══════════════════════════════ DEFAULT RECIPES ═══════════════════════════════
@@ -421,6 +451,7 @@ const DEFAULT_RECIPES=[
       {qty:'3 tbsp',item:'Olive oil'},
       {qty:'1 tsp',item:'Ginger paste'},
       {qty:'1 tsp',item:'Garlic paste'},
+      {qty:'2–3',item:'Green chilis, finely chopped'},
       {qty:'1½',item:'Plum tomatoes, roughly chopped'},
       {qty:'⅓ cup',item:'2% Greek yogurt'},
       {qty:'1 cup',item:'Fresh cilantro, roughly chopped'},
@@ -430,14 +461,16 @@ const DEFAULT_RECIPES=[
       {qty:'½ tsp',item:'Zeera (cumin)'},
       {qty:'⅓ tsp',item:'Garam masala'},
       {qty:'¾ tsp',item:'Salt'},
+      {qty:'4 tbsp',item:'Water (for bhuna, in small increments)'},
     ],
     steps:[
-      'Heat olive oil in a heavy-bottomed pan over medium heat. Add onions and cook, stirring occasionally, until deep golden — about 20 minutes. Don\'t rush this step.',
-      'Add ginger paste and garlic paste. Cook 2 minutes until fragrant.',
-      'Add all spices and salt. Stir to coat the onions and bloom the spices for 1 minute. <em>No Kashmiri mirch? Substitute ¼ tsp cayenne + ¼ tsp sweet paprika — cayenne is much hotter so use less, and paprika restores the mild color and body.</em>',
+      'Bring turkey to room temp 30 min before cooking. Form into loose balls. Finely chop green chilis and cilantro. Roughly chop tomatoes. Set aside.',
+      'Heat olive oil over medium heat. Add onions and cook until deep golden — about 20 minutes. Don\'t rush.',
+      'Add ginger paste, garlic paste, and green chilis. Cook 2 minutes until fragrant.',
+      'Add all dry spices and salt. Add a splash of water (1–2 tbsp) and stir into a paste — keep stirring as water evaporates. Add another splash and repeat 3–4 times until spices are fully bloomed and look glossy and unified. <em>No Kashmiri mirch? Use ¼ tsp cayenne + ¼ tsp sweet paprika.</em>',
       'Add ground turkey. Break into small crumbles and cook until no longer pink, about 8 minutes.',
       'Add tomatoes. Cook on medium-low, stirring occasionally, for 15 minutes until oil separates (bhuna).',
-      'Stir in Greek yogurt one tablespoon at a time. Simmer 5 minutes.',
+      'Remove from heat briefly. Stir in Greek yogurt one tablespoon at a time. Return to low heat and simmer 5 minutes.',
       'Finish with fresh cilantro. Taste and adjust salt.',
     ],
     notes:'Freezes beautifully in Souper Cubes. Reheat with a splash of water. Serve over quinoa blend or with a simple salad.',
@@ -503,8 +536,8 @@ const DEFAULT_RECIPES=[
     prep:'5 min',cook:'25 min',
     tags:['batch','freezer-friendly','low-glycemic','carb-base'],
     ingredients:[
-      {qty:'1 cup dry',item:'White quinoa, rinsed'},
-      {qty:'1 cup dry',item:'White rice, rinsed'},
+      {qty:'1 cup dry',item:'White quinoa'},
+      {qty:'1 cup dry',item:'White rice'},
       {qty:'2½ cups',item:'Water or low-sodium broth'},
       {qty:'½ tsp',item:'Salt'},
     ],
@@ -524,7 +557,7 @@ const DEFAULT_RECIPES=[
     prep:'5 min',cook:'20 min',
     tags:['batch','freezer-friendly','low-glycemic','high-protein'],
     ingredients:[
-      {qty:'1½ cups dry',item:'White quinoa, rinsed'},
+      {qty:'1½ cups dry',item:'White quinoa'},
       {qty:'3 cups',item:'Water'},
       {qty:'½ tsp',item:'Salt'},
     ],
@@ -629,6 +662,34 @@ const DEFAULT_RECIPES=[
     notes:'Don\'t crowd the pan — spread in a single layer or they steam instead of roast. Roast whatever is in season or needs to be used up.',
     nutrPerServing:{cal:130,protein:3,carbs:18,sugar:6,fat:7,satfat:1,sodium:160,fiber:4},
     cookUrl:'roasted_veg_recipe.html',
+  },
+  {
+    id:'shishKebab',name:'Shish Kebabs',serves:4,defaultServes:4,
+    prep:'20 min',cook:'15 min',
+    tags:['high-protein','grilling','Pakistani','batch'],
+    ingredients:[
+      {qty:'1 lb',item:'Ground turkey or beef'},
+      {qty:'1 medium',item:'Vidalia onion, finely grated'},
+      {qty:'2',item:'Green chilis, finely chopped'},
+      {qty:'¼ cup',item:'Fresh cilantro, finely chopped'},
+      {qty:'1 tsp',item:'Ginger paste'},
+      {qty:'1 tsp',item:'Garlic paste'},
+      {qty:'1 tsp',item:'Dhania (ground coriander)'},
+      {qty:'½ tsp',item:'Kashmiri mirch'},
+      {qty:'½ tsp',item:'Zeera (cumin)'},
+      {qty:'¼ tsp',item:'Garam masala'},
+      {qty:'¾ tsp',item:'Salt'},
+      {qty:'1 tbsp',item:'Olive oil'},
+    ],
+    steps:[
+      'Grate the onion on the fine side of a box grater — you want pulp, not chunks. Squeeze out excess moisture with your hands or a clean cloth. Too much moisture makes kebabs fall apart.',
+      'Combine meat with grated onion, green chilis, cilantro, ginger paste, garlic paste, all spices, and salt. Mix thoroughly by hand for 2–3 minutes until the mixture is homogeneous and slightly sticky. Cover and refrigerate 30 minutes minimum — 2 hours is better.',
+      'Shape into oblong kebabs around skewers (if using), or form into flat oval patties about ¾ inch thick. Wet your hands slightly to prevent sticking.',
+      'Grill or pan-fry: For grill — high heat, 4–5 minutes per side. For pan — heat 1 tbsp olive oil over medium-high, cook 4–5 minutes per side until cooked through and charred at edges.',
+      'Done when internal temp reaches 165°F, juices run clear, and outside has visible char. Rest 3 minutes before serving.',
+    ],
+    notes:'Refrigerating the mixture is not optional — it lets the proteins bind and flavors meld. Kebabs made and cooked immediately fall apart. Can be shaped and frozen raw — cook from frozen adding 3–4 extra minutes per side.',
+    nutrPerServing:{cal:220,protein:28,carbs:4,sugar:1,fat:10,satfat:2.5,sodium:420,fiber:0},
   },
 ];
 
@@ -823,13 +884,6 @@ function renderWeekly(){
       div.dataset.key=key;
       div.onclick=e=>{if(e.target.classList.contains('gi-remove')||e.target.classList.contains('qty-edit-btn')||e.target.classList.contains('qty-input'))return;toggleCheck(key);};
       const patel=item.patel?'<span class="patel-tag">Patel Bros</span>':'';
-      const brand=item.brand?'<span class="gi-brand">→ '+item.brand+'</span>':'';
-      const where=item.where?'<span class="gi-where">📍 '+item.where+'</span>':'';
-      const pills=buildPills(item);
-      const nutrNote=item.nutrNote?'<span class="np gd">'+item.nutrNote+'</span>':'';
-      // Recipe attribution
-      const contribs=recipeContribs[item.id]||[];
-      const contribHtml=contribs.length>0?'<span class="gi-contribs">'+contribs.map(c=>c.recipeName+(c.qty?' ('+c.qty+')':'')).join(' + ')+'</span>':'';
       div.innerHTML=
         '<div class="gchk"><svg class="chk-svg" width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3 5.5L8 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'+
         '<div>'+
@@ -1047,6 +1101,51 @@ function adjServes(e,id,delta){
   const next=Math.max(1,current+delta);
   recipeServes[id]=next;save(SK.recipeServes,recipeServes);
   const sv=document.getElementById('sv-'+id);if(sv)sv.textContent=next;
+  // If all recipe ingredients are already on the weekly list, update quantities
+  const mappable=recipe.ingredients.map(ing=>findInvId(ing.item)).filter(Boolean);
+  const allOnList=mappable.length>0&&mappable.every(invId=>weeklyIds.includes(invId));
+  if(allOnList) updateRecipeQuantities(id,next);
+}
+
+function updateRecipeQuantities(recipeId,newServes){
+  const recipe=recipes.find(r=>r.id===recipeId);if(!recipe)return;
+  const ratio=newServes/recipe.defaultServes;
+  recipe.ingredients.forEach(ing=>{
+    const invId=findInvId(ing.item);if(!invId||!weeklyIds.includes(invId))return;
+    // Check if this item was contributed by this recipe
+    const contribs=recipeContribs[invId]||[];
+    const myContrib=contribs.find(c=>c.recipeId===recipeId);
+    if(!myContrib)return;
+    // Recalculate qty based on new serving ratio
+    const base=parseQtyValue(ing.qty);
+    if(!base)return;
+    const newVal=base.val*ratio;
+    const unit=base.unit||'';
+    const fracs=[[0.125,'⅛'],[0.25,'¼'],[0.333,'⅓'],[0.5,'½'],[0.667,'⅔'],[0.75,'¾']];
+    const whole=Math.floor(newVal);const rem=newVal-whole;
+    let numStr='';
+    if(rem<0.06)numStr=String(Math.round(newVal));
+    else{let found2=false;for(const[fv,fs]of fracs){if(Math.abs(rem-fv)<0.06){numStr=(whole>0?whole+' ':'')+fs;found2=true;break;}}if(!found2)numStr=newVal.toFixed(1);}
+    const newQty=numStr+(unit?' '+unit:'');
+    // Update the contribution record
+    myContrib.qty=ing.qty; // keep original for reference
+    // Update customQty — if only one contributor, just set it; otherwise recombine
+    const otherContribs=contribs.filter(c=>c.recipeId!==recipeId);
+    if(otherContribs.length===0){
+      customQty[invId]=newQty;
+    } else {
+      // Re-add other contributors' quantities
+      let total=newVal;
+      otherContribs.forEach(c=>{const p=parseQtyValue(c.qty);if(p&&p.unit===unit)total+=p.val;});
+      const tw=Math.floor(total);const tr=total-tw;
+      let ts='';
+      if(tr<0.06)ts=String(Math.round(total));
+      else{for(const[fv,fs]of fracs){if(Math.abs(tr-fv)<0.06){ts=(tw>0?tw+' ':'')+fs;break;}}if(!ts)ts=total.toFixed(1);}
+      customQty[invId]=ts+(unit?' '+unit:'');
+    }
+  });
+  save(SK.customQty,customQty);save(SK.recipeContribs,recipeContribs);
+  renderWeekly();
 }
 
 function saveRecipeUrl(id){
@@ -1063,8 +1162,31 @@ function toggleUrlRow(id){
 }
 
 function findInvId(itemName){
-  const lower=itemName.toLowerCase().replace(/[,()]/g,'').split(' ')[0];
-  const found=inventory.find(i=>i.name.toLowerCase().includes(lower)||lower.includes(i.name.toLowerCase().split(' ')[0]));
+  if(!itemName)return null;
+  const clean=itemName.toLowerCase().replace(/[,()]/g,'').trim();
+  const words=clean.split(/\s+/);
+  // Try progressively broader matches
+  // 1. Exact name match
+  let found=inventory.find(i=>i.name.toLowerCase()===clean);
+  if(found)return found.id;
+  // 2. Inventory name contained in item string (multi-word)
+  found=inventory.find(i=>clean.includes(i.name.toLowerCase()));
+  if(found)return found.id;
+  // 3. All significant words of inventory name appear in item string
+  found=inventory.find(i=>{
+    const iWords=i.name.toLowerCase().split(/\s+/).filter(w=>w.length>3);
+    return iWords.length>0&&iWords.every(w=>clean.includes(w));
+  });
+  if(found)return found.id;
+  // 4. First meaningful word match (skip 'white','fresh','ground','raw','plain')
+  const skipWords=new Set(['white','fresh','ground','raw','plain','dried','large','small','medium','extra']);
+  const sig=words.find(w=>w.length>3&&!skipWords.has(w));
+  if(sig){
+    found=inventory.find(i=>i.name.toLowerCase().includes(sig));
+    if(found)return found.id;
+  }
+  // 5. Fallback first word
+  found=inventory.find(i=>i.name.toLowerCase().includes(words[0])||words[0].includes(i.name.toLowerCase().split(' ')[0]));
   return found?found.id:null;
 }
 
