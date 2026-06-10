@@ -407,6 +407,64 @@ const DEFAULT_INVENTORY=[
   {id:'spray',name:'Cooking spray',cat:'Kitchen Supplies',qty:'1 can',brand:'Best: Chosen Foods avocado spray (not flagged) · Good: Primal Kitchen avocado spray · Ok: PAM olive oil (scan Boycat — ConAgra)',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'1 second spray',nutr:{cal:7,protein:0,carbs:0,sugar:0,fat:1,satfat:0,sodium:0,fiber:0}},
   {id:'papertowels',name:'Paper towels',cat:'Kitchen Supplies',qty:'1 roll',brand:'Best: Who Gives A Crap (B Corp) · Good: Seventh Generation · Ok: Trader Joe\'s unbleached',where:'MOM\'s Organic, Whole Foods, Target',patel:false,portion:'—',nutr:{cal:0,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:0,fiber:0}},
   {id:'ziplock',name:'Freezer bags (if needed)',cat:'Kitchen Supplies',qty:'1 box',brand:'If/as — compostable freezer bags',where:'MOM\'s Organic, Whole Foods',patel:false,portion:'—',nutr:{cal:0,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:0,fiber:0}},
+
+  // ── PROTEIN additions ──
+  {id:'lambMince',name:'Ground lamb',cat:'Protein',qty:'1 lb',brand:'Organic/grass-fed preferred',where:'Whole Foods, Wegmans, halal butcher (Springfield/Herndon)',patel:false,portion:'1 cup cooked',nutr:{cal:340,protein:28,carbs:0,sugar:0,fat:24,satfat:10,sodium:85,fiber:0},nutrNote:'Traditional keema protein — richer than turkey',flags:['protein']},
+  {id:'whitefish',name:'Cod or tilapia fillets',cat:'Protein',qty:'1 lb',brand:'Wild-caught preferred',where:'MOM\'s Organic, Whole Foods, Wegmans',patel:false,portion:'1 fillet (4oz)',nutr:{cal:90,protein:20,carbs:0,sugar:0,fat:1,satfat:0,sodium:60,fiber:0},nutrNote:'Very lean white fish · mild flavor',flags:['protein']},
+  {id:'tempeh',name:'Tempeh',cat:'Protein',qty:'1 block (8oz)',brand:'Lightlife or Trader Joe\'s organic',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'3 oz',nutr:{cal:160,protein:15,carbs:9,sugar:0,fat:9,satfat:1.5,sodium:10,fiber:3},nutrNote:'Fermented soy — complete protein, better digestibility than tofu',flags:['protein','fiber']},
+
+  // ── DAIRY additions ──
+  {id:'parmesanCheese',name:'Parmesan (wedge)',cat:'Dairy & Refrigerated',qty:'4 oz',brand:'Parmigiano-Reggiano DOP preferred',where:'Whole Foods, Wegmans, Trader Joe\'s',patel:false,portion:'2 tbsp grated',nutr:{cal:40,protein:4,carbs:0,sugar:0,fat:3,satfat:1.5,sodium:170,fiber:0},nutrNote:'Use as accent — adds umami depth'},
+  {id:'butter',name:'Unsalted butter',cat:'Dairy & Refrigerated',qty:'1 stick',brand:'Best: Kerrygold grass-fed · Good: Organic Valley · Ok: any organic',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s, any grocery',patel:false,portion:'1 tbsp',nutr:{cal:100,protein:0,carbs:0,sugar:0,fat:11,satfat:7,sodium:0,fiber:0},nutrNote:'Use sparingly — high sat fat'},
+
+  // ── PRODUCE additions ──
+  {id:'asparagus',name:'Asparagus',cat:'Produce',qty:'1 bunch',brand:'Organic preferred',where:'MOM\'s Organic, Whole Foods, Harris Teeter',patel:false,portion:'6 spears',nutr:{cal:20,protein:2,carbs:4,sugar:2,fat:0,satfat:0,sodium:13,fiber:2},nutrNote:'Folate · vitamin K · prebiotic fiber',flags:['fiber','heart']},
+  {id:'zucchini',name:'Zucchini',cat:'Produce',qty:'2 medium',brand:'Organic preferred',where:'MOM\'s Organic, Whole Foods, any grocery',patel:false,portion:'1 cup sliced',nutr:{cal:18,protein:1,carbs:4,sugar:2,fat:0,satfat:0,sodium:10,fiber:1},nutrNote:'Very versatile · mild flavor · low cal'},
+  {id:'eggplant',name:'Eggplant (baingan)',cat:'Produce',qty:'1 medium',brand:'Organic preferred',where:'MOM\'s Organic, Whole Foods, Patel Brothers, H Mart',patel:false,portion:'1 cup cubed',nutr:{cal:20,protein:1,carbs:5,sugar:3,fat:0,satfat:0,sodium:2,fiber:3},nutrNote:'Essential in Pakistani cooking (baingan bharta) · high fiber',flags:['fiber']},
+  {id:'cauliflower',name:'Cauliflower (gobi)',cat:'Produce',qty:'1 head',brand:'Organic preferred',where:'MOM\'s Organic, Whole Foods, any grocery',patel:false,portion:'1 cup florets',nutr:{cal:25,protein:2,carbs:5,sugar:2,fat:0,satfat:0,sodium:30,fiber:2},nutrNote:'Aloo gobi staple · very versatile · low cal',flags:['fiber']},
+  {id:'peas',name:'Fresh or frozen peas',cat:'Produce',qty:'1 cup',brand:'Organic preferred',where:'MOM\'s Organic, any grocery',patel:false,portion:'½ cup',nutr:{cal:62,protein:4,carbs:11,sugar:4,fat:0,satfat:0,sodium:58,fiber:4},nutrNote:'Matar keema essential · high fiber',flags:['fiber']},
+  {id:'corn',name:'Corn on the cob',cat:'Produce',qty:'2 ears',brand:'Organic preferred',where:'MOM\'s Organic, any grocery (seasonal)',patel:false,portion:'1 ear',nutr:{cal:90,protein:3,carbs:19,sugar:6,fat:1,satfat:0,sodium:0,fiber:2},nutrNote:'Natural sweetness · seasonal'},
+  {id:'radish',name:'Radishes (mooli/daikon)',cat:'Produce',qty:'1 bunch',brand:'Any',where:'H Mart (Wheaton), Patel Brothers, MOM\'s Organic',patel:true,portion:'½ cup sliced',nutr:{cal:9,protein:0,carbs:2,sugar:1,fat:0,satfat:0,sodium:23,fiber:1},nutrNote:'Daikon used in Pakistani cooking (mooli paratha) · digestive'},
+  {id:'freshCoriander',name:'Coriander seeds (whole)',cat:'Spices & Condiments',qty:'1 jar',brand:'Frontier Co-op or Patel Brothers bulk',where:'MOM\'s Organic, Patel Brothers',patel:false,portion:'1 tsp',nutr:{cal:5,protein:0,carbs:1,sugar:0,fat:0,satfat:0,sodium:1,fiber:0},nutrNote:'Toast and grind fresh for keema — more aromatic than pre-ground'},
+
+  // ── GRAINS additions ──
+  {id:'wholeWheatFlour',name:'Whole wheat flour (atta)',cat:'Grains & Dry Goods',qty:'2 lb bag',brand:'Best: Patel Brothers chakki atta · Good: Bob\'s Red Mill whole wheat',where:'Patel Brothers (Rockville/Herndon), MOM\'s Organic, Whole Foods',patel:true,portion:'¼ cup',nutr:{cal:100,protein:4,carbs:22,sugar:0,fat:0.5,satfat:0,sodium:0,fiber:3},nutrNote:'For roti/chapati — chakki-ground is best texture',flags:['fiber']},
+  {id:'basmatiRice',name:'Basmati rice',cat:'Grains & Dry Goods',qty:'2 lbs',brand:'Best: Daawat or Tilda (Patel Brothers) · Good: RiceSelect organic',where:'Patel Brothers, H Mart, Whole Foods',patel:true,portion:'1 cup cooked',nutr:{cal:210,protein:4,carbs:46,sugar:0,fat:0,satfat:0,sodium:0,fiber:1},nutrNote:'Lower GI than regular white rice · essential for Pakistani cooking'},
+  {id:'barley',name:'Pearl barley',cat:'Grains & Dry Goods',qty:'1 cup dry',brand:'Bob\'s Red Mill',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'½ cup cooked',nutr:{cal:97,protein:2,carbs:22,sugar:0,fat:0.5,satfat:0,sodium:3,fiber:3},nutrNote:'Beta-glucan fiber — excellent for heart health and blood sugar',flags:['fiber','heart']},
+
+  // ── SPICES & CONDIMENTS additions ──
+  {id:'cuminSeeds',name:'Cumin seeds (whole)',cat:'Spices & Condiments',qty:'1 jar',brand:'Frontier Co-op or Patel Brothers bulk',where:'Patel Brothers, MOM\'s Organic',patel:true,portion:'½ tsp',nutr:{cal:4,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:2,fiber:0},nutrNote:'Used in tarka/tempering — more aromatic than ground'},
+  {id:'fennel',name:'Fennel seeds (saunf)',cat:'Spices & Condiments',qty:'1 jar',brand:'Frontier Co-op or Patel Brothers bulk',where:'Patel Brothers, MOM\'s Organic',patel:true,portion:'½ tsp',nutr:{cal:4,protein:0,carbs:1,sugar:0,fat:0,satfat:0,sodium:1,fiber:0},nutrNote:'Digestive · used in chai and meat marinades'},
+  {id:'blackCardamom',name:'Black cardamom (badi elaichi)',cat:'Spices & Condiments',qty:'1 jar',brand:'Patel Brothers bulk preferred',where:'Patel Brothers, India Bazaar (Sterling)',patel:true,portion:'1 pod',nutr:{cal:5,protein:0,carbs:1,sugar:0,fat:0,satfat:0,sodium:0,fiber:0},nutrNote:'Smoky depth — used in biryani and slow-cooked meats'},
+  {id:'cloves',name:'Cloves (laung)',cat:'Spices & Condiments',qty:'1 jar',brand:'Frontier Co-op or Patel Brothers',where:'Patel Brothers, MOM\'s Organic',patel:true,portion:'2–3 whole',nutr:{cal:3,protein:0,carbs:1,sugar:0,fat:0,satfat:0,sodium:1,fiber:0},nutrNote:'Anti-inflammatory · used in whole spice blends'},
+  {id:'bayLeaves',name:'Bay leaves (tej patta)',cat:'Spices & Condiments',qty:'1 jar',brand:'Frontier Co-op or Patel Brothers',where:'MOM\'s Organic, Patel Brothers, any grocery',patel:false,portion:'1–2 leaves',nutr:{cal:2,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:0,fiber:0},nutrNote:'Aromatic base for rice and slow-cooked dishes'},
+  {id:'cinnamonStick',name:'Cinnamon sticks',cat:'Spices & Condiments',qty:'1 jar',brand:'Frontier Co-op Ceylon preferred',where:'MOM\'s Organic, Whole Foods, Patel Brothers',patel:false,portion:'1 stick',nutr:{cal:6,protein:0,carbs:2,sugar:0,fat:0,satfat:0,sodium:0,fiber:1},nutrNote:'Used whole in biryanis and chai'},
+  {id:'starAnise',name:'Star anise (badyan)',cat:'Spices & Condiments',qty:'1 jar',brand:'Frontier Co-op or Patel Brothers',where:'Patel Brothers, MOM\'s Organic, H Mart',patel:true,portion:'1 star',nutr:{cal:5,protein:0,carbs:1,sugar:0,fat:0,satfat:0,sodium:0,fiber:0},nutrNote:'Key in biryani and nihari spice blend'},
+  {id:'nutmeg',name:'Nutmeg (jaifal)',cat:'Spices & Condiments',qty:'1 jar or whole',brand:'Frontier Co-op — whole and freshly grated is best',where:'MOM\'s Organic, Whole Foods, Patel Brothers',patel:false,portion:'small pinch',nutr:{cal:3,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:0,fiber:0},nutrNote:'Used in garam masala blends and desserts'},
+  {id:'roseWater',name:'Rose water',cat:'Spices & Condiments',qty:'1 bottle',brand:'Cortas or any pure food-grade rose water',where:'Patel Brothers, H Mart, Middle Eastern grocers (Springfield)',patel:true,portion:'1 tsp',nutr:{cal:0,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:0,fiber:0},nutrNote:'Used in kheer, sheer khurma, and biryanis'},
+  {id:'kewraWater',name:'Kewra water (screwpine)',cat:'Spices & Condiments',qty:'1 bottle',brand:'Shan or National brand',where:'Patel Brothers (Rockville/Herndon), India Bazaar',patel:true,portion:'1 tsp',nutr:{cal:0,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:0,fiber:0},nutrNote:'Fragrant essence — used in biryani and desserts'},
+  {id:'foodColor',name:'Food color (yellow/orange)',cat:'Spices & Condiments',qty:'1 small bottle',brand:'McCormick or any food-grade',where:'Patel Brothers, any grocery',patel:true,portion:'few drops',nutr:{cal:0,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:0,fiber:0},nutrNote:'Used for biryani color — optional, saffron is better substitute'},
+  {id:'saffron',name:'Saffron (zafran)',cat:'Spices & Condiments',qty:'small jar',brand:'Patel Brothers bulk or Spice House',where:'Patel Brothers, Whole Foods, MOM\'s Organic',patel:true,portion:'small pinch',nutr:{cal:2,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:1,fiber:0},nutrNote:'Anti-depressant properties · used in biryanis and desserts'},
+  {id:'worcestershire',name:'Worcestershire sauce',cat:'Spices & Condiments',qty:'1 bottle',brand:'Best: Annie\'s organic · Ok: Lea & Perrins (scan Boycat)',where:'MOM\'s Organic, Whole Foods, Harris Teeter',patel:false,portion:'1 tsp',nutr:{cal:5,protein:0,carbs:1,sugar:1,fat:0,satfat:0,sodium:65,fiber:0},nutrNote:'Umami depth in marinades'},
+  {id:'coconutAminos',name:'Coconut aminos',cat:'Spices & Condiments',qty:'1 bottle',brand:'Coconut Secret or Trader Joe\'s',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'1 tbsp',nutr:{cal:10,protein:0,carbs:2,sugar:1,fat:0,satfat:0,sodium:270,fiber:0},nutrNote:'Soy sauce sub — lower sodium than tamari'},
+  {id:'hotSauce',name:'Hot sauce',cat:'Spices & Condiments',qty:'1 bottle',brand:'Best: Yellowbird (independent) · Good: Cholula · Ok: Tabasco',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s, any grocery',patel:false,portion:'1 tsp',nutr:{cal:0,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:35,fiber:0},nutrNote:'Capsaicin · add heat without bulk'},
+  {id:'breadcrumbs',name:'Panko breadcrumbs',cat:'Spices & Condiments',qty:'1 box',brand:'Ian\'s gluten-free or Trader Joe\'s',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'2 tbsp',nutr:{cal:60,protein:2,carbs:12,sugar:0,fat:0,satfat:0,sodium:75,fiber:0},nutrNote:'For coating kebabs and chicken'},
+
+  // ── BEVERAGES ──
+  {id:'coffee',name:'Coffee (whole bean or ground)',cat:'Beverages',qty:'12 oz bag',brand:'Best: Counter Culture (Durham, independent) · Good: Stumptown · Ok: Trader Joe\'s organic',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'1 cup brewed',nutr:{cal:5,protein:0,carbs:1,sugar:0,fat:0,satfat:0,sodium:5,fiber:0},nutrNote:'Antioxidants · metabolism'},
+  {id:'chaiTea',name:'Chai (loose leaf or bags)',cat:'Beverages',qty:'1 box or bag',brand:'Patel Brothers loose Assam · Good: Numi Aged Earl Grey',where:'Patel Brothers (best quality/price), MOM\'s Organic',patel:true,portion:'1 cup brewed',nutr:{cal:2,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:5,fiber:0},nutrNote:'Essential · pair with cardamom, ginger, cinnamon'},
+  {id:'coconutWater',name:'Coconut water',cat:'Beverages',qty:'4-pack',brand:'Best: Harmless Harvest (organic, independent) · Good: Vita Coco · Ok: Trader Joe\'s',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'1 cup (8oz)',nutr:{cal:45,protein:0,carbs:11,sugar:9,fat:0,satfat:0,sodium:30,fiber:0},nutrNote:'Natural electrolytes · watch sugar — not a low-sugar drink'},
+
+  // ── SNACKS additions ──
+  {id:'darkChocolate',name:'Dark chocolate (85%+)',cat:'Snacks',qty:'1 bar',brand:'Best: Alter Eco organic · Good: Endangered Species · Ok: Trader Joe\'s 85%',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'1 oz (2 squares)',nutr:{cal:170,protein:2,carbs:13,sugar:3,fat:12,satfat:7,sodium:0,fiber:3},nutrNote:'Flavonoids — heart health · watch sat fat · low sugar at 85%+',flags:['heart']},
+  {id:'riceCakes',name:'Brown rice cakes',cat:'Snacks',qty:'1 bag',brand:'Lundberg organic',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'2 cakes',nutr:{cal:70,protein:1,carbs:15,sugar:0,fat:0.5,satfat:0,sodium:30,fiber:1},nutrNote:'Very light snack · gluten-free · low cal'},
+  {id:'sunflowerSeeds',name:'Sunflower seeds (raw)',cat:'Snacks',qty:'1 bag',brand:'NOW Foods or bulk at MOM\'s',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'2 tbsp',nutr:{cal:90,protein:3,carbs:4,sugar:0,fat:8,satfat:1,sodium:0,fiber:1},nutrNote:'Vitamin E · magnesium · healthy fats'},
+  {id:'hummus',name:'Hummus',cat:'Snacks',qty:'10 oz container',brand:'Best: Hope Foods or Ithaca · Avoid: Sabra (flagged)',where:'MOM\'s Organic, Whole Foods, Trader Joe\'s',patel:false,portion:'2 tbsp',nutr:{cal:50,protein:2,carbs:5,sugar:0,fat:3,satfat:0.5,sodium:95,fiber:1},nutrNote:'Avoid Sabra (BDS flagged) — Hope Foods is best alternative'},
+
+  // ── KITCHEN SUPPLIES additions ──
+  {id:'soupCubesMolds',name:'Souper Cubes freezer trays',cat:'Kitchen Supplies',qty:'as needed',brand:'Souper Cubes (1-cup and 2-cup)',where:'Amazon, Souper Cubes website',patel:false,portion:'—',nutr:{cal:0,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:0,fiber:0},nutrNote:'Silicone — freeze portions cleanly'},
+  {id:'parchment',name:'Parchment paper',cat:'Kitchen Supplies',qty:'1 roll',brand:'If You Care (unbleached, compostable)',where:'MOM\'s Organic, Whole Foods, Target',patel:false,portion:'—',nutr:{cal:0,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:0,fiber:0}},
+  {id:'cheesecloth',name:'Muslin / cheesecloth',cat:'Kitchen Supplies',qty:'1 pack',brand:'Any food-grade',where:'Whole Foods, Amazon',patel:false,portion:'—',nutr:{cal:0,protein:0,carbs:0,sugar:0,fat:0,satfat:0,sodium:0,fiber:0},nutrNote:'For straining yogurt and making labneh'},
   // ── ADDITIONAL PRODUCE ──
   {id:'greenChili',name:'Green chilis (serrano or Thai)',cat:'Produce',qty:'3–4',brand:'Fresh preferred',where:'Patel Brothers, H Mart, MOM\'s Organic, any grocery',patel:true,portion:'1 chili',nutr:{cal:4,protein:0,carbs:1,sugar:0,fat:0,satfat:0,sodium:0,fiber:0},nutrNote:'Capsaicin · vitamin C · essential for Pakistani cooking'},
   {id:'lime',name:'Limes',cat:'Produce',qty:'3',brand:'Organic preferred',where:'MOM\'s Organic, any grocery',patel:false,portion:'1 lime (juice)',nutr:{cal:11,protein:0,carbs:4,sugar:1,fat:0,satfat:0,sodium:1,fiber:0},nutrNote:'Vitamin C · brightens dishes'},
@@ -1035,7 +1093,21 @@ function renderRecipes(){
     const card=document.createElement('div');card.className='recipe-card';
     const tags=recipe.tags.map(t=>'<span class="rc-tag">'+t+'</span>').join('');
     const meta=[recipe.prep?'Prep '+recipe.prep:'',recipe.cook&&recipe.cook!=='0 min'?'Cook '+recipe.cook:''].filter(Boolean).join(' · ');
-    const ingrHtml=recipe.ingredients.map(ing=>'<li><span class="rc-ingr-name">'+ing.item+'</span><span class="rc-ingr-qty">'+ing.qty+'</span></li>').join('');
+    const ingrHtml=recipe.ingredients.map(ing=>{
+      const parsed=parseQtyValue(ing.qty);
+      let displayQty=ing.qty;
+      if(parsed&&ratio!==1){
+        const scaled=parsed.val*ratio;
+        const unit=parsed.unit||'';
+        const fracs=[[0.125,'⅛'],[0.25,'¼'],[0.333,'⅓'],[0.5,'½'],[0.667,'⅔'],[0.75,'¾']];
+        const whole=Math.floor(scaled);const rem=scaled-whole;
+        let numStr='';
+        if(rem<0.06)numStr=String(Math.round(scaled));
+        else{let found=false;for(const[fv,fs]of fracs){if(Math.abs(rem-fv)<0.06){numStr=(whole>0?whole+' ':'')+fs;found=true;break;}}if(!found)numStr=scaled.toFixed(1);}
+        displayQty=numStr+(unit?' '+unit:'');
+      }
+      return'<li><span class="rc-ingr-name">'+ing.item+'</span><span class="rc-ingr-qty">'+displayQty+'</span></li>';
+    }).join('');
     const nutrHtml=recipe.nutrPerServing?[
       '<span class="np">'+recipe.nutrPerServing.cal+' kcal/serving</span>',
       recipe.nutrPerServing.protein?'<span class="np hi">'+recipe.nutrPerServing.protein+'g protein</span>':'',
@@ -1098,7 +1170,8 @@ function adjServes(e,id,delta){
   const current=getRecipeServes(id,recipe.defaultServes);
   const next=Math.max(1,current+delta);
   recipeServes[id]=next;save(SK.recipeServes,recipeServes);
-  const sv=document.getElementById('sv-'+id);if(sv)sv.textContent=next;
+  // Re-render the full recipe card so ingredient quantities update
+  renderRecipes();
   // If all recipe ingredients are already on the weekly list, update quantities
   const mappable=recipe.ingredients.map(ing=>findInvId(ing.item)).filter(Boolean);
   const allOnList=mappable.length>0&&mappable.every(invId=>weeklyIds.includes(invId));
